@@ -14,17 +14,23 @@ Dashboard interactivo que permite a cualquier ciudadano calcular si puede permit
 - Calcula la cuota mensual de hipoteca para 70 m² en cada comunidad autónoma
 - Muestra qué porcentaje del salario neto representa esa cuota
 - Clasifica la situación como accesible, difícil acceso o inaccesible
-- Compara la evolución del Índice de Precios de Vivienda (IPV) desde 2022
+- Muestra la subida acumulada del precio de la vivienda desde el primer trimestre de 2022, con datos reales del INE
 - Lista todas las comunidades autónomas ordenadas por precio por m²
 
 ## Fuentes de datos
 
 | Dataset                             | Fuente | Endpoint            |
 | ----------------------------------- | ------ | ------------------- |
-| Índice de Precios de Vivienda (IPV) | INE    | `DATOS_TABLA/59194` |
+| IPV por CCAA — índices trimestrales | INE    | `DATOS_TABLA/25171` |
 | Encuesta de Estructura Salarial     | INE    | `DATOS_TABLA/28196` |
 
 Los datos se obtienen de la [API JSON del INE](https://www.ine.es/dyngs/DAB/index.htm?cid=1099), que es pública y no requiere API key. Se cachean durante 24 horas en el servidor (`revalidate: 86400`), ya que el INE actualiza sus datos trimestralmente.
+
+La línea **Nacional** del gráfico se calcula como la media aritmética de todas las comunidades autónomas, ya que la tabla 25171 no incluye un agregado nacional.
+
+## Cómo funciona el gráfico
+
+Los índices del INE usan base 2015. Para hacer la comparación más intuitiva, los datos se rebasean a T1 2022 = 100 en el servidor antes de enviarse al cliente. Esto significa que cada valor representa la subida acumulada en porcentaje desde ese trimestre — si Madrid marca 134 en T4 2025, los precios han subido un 34% desde el primer trimestre de 2022.
 
 ## Stack tecnológico
 
@@ -40,7 +46,7 @@ vivienda-ine/
 ├── app/
 │   ├── api/
 │   │   └── ine/
-│   │       └── route.js        # Route Handler — llama a la API del INE
+│   │       └── route.js        # Llama al INE, calcula Nacional, rebasea a T1 2022
 │   ├── globals.css             # Importa Tailwind v4
 │   ├── layout.js               # Layout global con Header
 │   └── page.js                 # Página principal
@@ -109,9 +115,9 @@ export default config;
 
 En v4 ya no existe `tailwind.config.js`. El contenido se detecta automáticamente y no hacen falta las directivas `@tailwind base`, `@tailwind components` ni `@tailwind utilities`.
 
-## Cómo funciona el cálculo
+## Cómo funciona el cálculo de hipoteca
 
-La cuota mensual de hipoteca se calcula con la fórmula estándar de amortización francesa:
+La cuota mensual se calcula con la fórmula estándar de amortización francesa:
 
 ```
 cuota = principal × (r × (1+r)^n) / ((1+r)^n - 1)
@@ -137,11 +143,11 @@ git push
 
 ## Posibles mejoras
 
-- Conectar el gráfico a los datos reales de la API del INE en tiempo real
 - Añadir datos de alquiler además de compra
 - Filtro por número de habitaciones o superficie personalizada
 - Mapa coroplético de España con color por accesibilidad
 - Comparador de dos comunidades en el mismo gráfico
+- Actualizar los precios por m² y salarios medios desde la API del INE en tiempo real
 
 ## Licencia
 
