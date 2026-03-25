@@ -5,9 +5,18 @@ import Header from "@/components/Header";
 const geist = Geist({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Accesibilidad a la vivienda en España",
+  title: "¿Puedo comprar piso en España? Calculadora por comunidad autónoma",
   description:
-    "¿Puedes permitirte vivir en España? Basado en datos abiertos del INE.",
+    "Calcula si puedes permitirte una hipoteca en tu comunidad autónoma con datos oficiales del INE. Precio por m², esfuerzo salarial y cuota mensual.",
+  keywords:
+    "hipoteca, vivienda España, precio piso, accesibilidad vivienda, INE",
+  openGraph: {
+    title: "¿Puedo comprar piso en España?",
+    description:
+      "Calculadora de accesibilidad a la vivienda con datos del INE.",
+    url: "https://tu-url.vercel.app",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }) {

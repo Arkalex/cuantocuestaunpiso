@@ -41,7 +41,7 @@ export default function PriceChart({ data, selectedRegion }) {
         />
         <Line
           type="monotone"
-          dataKey="National"
+          dataKey="Nacional"
           stroke="#aaa"
           strokeWidth={1.5}
           strokeDasharray="5 4"
