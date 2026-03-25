@@ -2,9 +2,9 @@
 
 Dashboard interactivo que permite a cualquier ciudadano calcular si puede permitirse comprar una vivienda en su comunidad autónoma, basado en datos oficiales del INE.
 
-![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38bdf8?logo=tailwindcss)
-![Recharts](https://img.shields.io/badge/Recharts-2-blue)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss)
+![Recharts](https://img.shields.io/badge/Recharts-3-blue)
 ![Datos](https://img.shields.io/badge/Datos-INE.es-red)
 
 ---
@@ -28,9 +28,9 @@ Los datos se obtienen de la [API JSON del INE](https://www.ine.es/dyngs/DAB/inde
 
 ## Stack tecnológico
 
-- **[Next.js 15](https://nextjs.org/)** — framework React con App Router y Route Handlers para el fetch server-side
-- **[Tailwind CSS 3](https://tailwindcss.com/)** — estilos utility-first
-- **[Recharts](https://recharts.org/)** — gráfico de evolución del IPV
+- **[Next.js 16](https://nextjs.org/)** — framework React con App Router y Route Handlers para el fetch server-side
+- **[Tailwind CSS 4](https://tailwindcss.com/)** — estilos utility-first
+- **[Recharts 3](https://recharts.org/)** — gráfico de evolución del IPV
 - **[Vercel](https://vercel.com/)** — despliegue y hosting
 
 ## Estructura del proyecto
@@ -41,7 +41,7 @@ vivienda-ine/
 │   ├── api/
 │   │   └── ine/
 │   │       └── route.js        # Route Handler — llama a la API del INE
-│   ├── globals.css
+│   ├── globals.css             # Importa Tailwind v4
 │   ├── layout.js               # Layout global con Header
 │   └── page.js                 # Página principal
 ├── components/
@@ -50,9 +50,11 @@ vivienda-ine/
 │   ├── MetricCard.js           # Tarjeta de métrica individual
 │   ├── PriceChart.js           # Gráfico de evolución IPV (Recharts)
 │   └── RegionTable.js          # Tabla comparativa de comunidades
-├── tailwind.config.js
+├── postcss.config.mjs          # Configura @tailwindcss/postcss
 └── README.md
 ```
+
+> **Nota:** Tailwind v4 no usa `tailwind.config.js`. Toda la configuración se gestiona directamente en CSS.
 
 ## Cómo ejecutar en local
 
@@ -83,6 +85,29 @@ Abre [http://localhost:3000](http://localhost:3000) en el navegador.
 npm run build
 npm start
 ```
+
+## Configuración de Tailwind v4
+
+Este proyecto usa Tailwind CSS v4, que introduce cambios importantes respecto a v3:
+
+**`app/globals.css`**
+
+```css
+@import "tailwindcss";
+```
+
+**`postcss.config.mjs`**
+
+```js
+const config = {
+  plugins: {
+    "@tailwindcss/postcss": {},
+  },
+};
+export default config;
+```
+
+En v4 ya no existe `tailwind.config.js`. El contenido se detecta automáticamente y no hacen falta las directivas `@tailwind base`, `@tailwind components` ni `@tailwind utilities`.
 
 ## Cómo funciona el cálculo
 
