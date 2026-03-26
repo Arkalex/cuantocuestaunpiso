@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import MetricCard from "./MetricCard";
 import PriceChart from "./PriceChart";
 import RegionTable from "./RegionTable";
+import LocationSelector from "./LocationSelector";
 
 const REGIONS = {
   Andalucía: { pricePerSqm: 1540, avgSalary: 22000 },
@@ -27,10 +28,10 @@ const REGIONS = {
   Melilla: { pricePerSqm: 1050, avgSalary: 21500 },
 };
 
-function calculateMetrics(region, salary, type) {
+function calculateMetrics(pricePerSqm, salary, type) {
   const multiplier = type === "new" ? 1.18 : 1;
-  const pricePerSqm = Math.round(REGIONS[region].pricePerSqm * multiplier);
-  const totalPrice = pricePerSqm * 70;
+  const finalPrice = Math.round(pricePerSqm * multiplier);
+  const totalPrice = finalPrice * 70;
   const yearsOfSalary = (totalPrice / salary).toFixed(1);
   const principal = totalPrice * 0.8;
   const monthlyRate = 0.035 / 12;
@@ -53,7 +54,7 @@ function calculateMetrics(region, salary, type) {
   }
 
   return {
-    pricePerSqm,
+    pricePerSqm: finalPrice,
     yearsOfSalary,
     monthlyPayment,
     salaryPct,
@@ -63,11 +64,15 @@ function calculateMetrics(region, salary, type) {
 }
 
 export default function Dashboard() {
-  const [region, setRegion] = useState("Madrid");
+  const [ccaa, setCcaa] = useState("Madrid");
+  const [provincia, setProvincia] = useState("");
+  const [municipio, setMunicipio] = useState("");
   const [salary, setSalary] = useState(28000);
   const [type, setType] = useState("resale");
   const [chartData, setChartData] = useState([]);
   const [loadingChart, setLoadingChart] = useState(true);
+  const [provinciasData, setProvinciasData] = useState({});
+  const [municipiosData, setMunicipiosData] = useState({});
 
   useEffect(() => {
     fetch("/api/ine")
@@ -77,40 +82,64 @@ export default function Dashboard() {
       })
       .catch((err) => console.error("Error fetching INE data:", err))
       .finally(() => setLoadingChart(false));
+
+    fetch("/api/ministerio")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.provincias) setProvinciasData(json.provincias);
+        if (json.municipios) setMunicipiosData(json.municipios);
+      })
+      .catch((err) => console.error("Error fetching Ministerio data:", err));
   }, []);
 
-  const metrics = calculateMetrics(region, salary, type);
+  const activePricePerSqm = (() => {
+    if (municipio && municipiosData[municipio])
+      return municipiosData[municipio].pricePerSqm;
+    if (provincia && provinciasData[provincia])
+      return provinciasData[provincia].pricePerSqm;
+    return REGIONS[ccaa]?.pricePerSqm ?? 1500;
+  })();
+
+  const locationLabel = municipio || provincia || ccaa;
+  const metrics = calculateMetrics(activePricePerSqm, salary, type);
+  const barColor =
+    metrics.salaryPct > 50
+      ? "#f87171"
+      : metrics.salaryPct > 30
+        ? "#fbbf24"
+        : "#34d399";
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <p className="text-sm text-gray-500 mb-6">
-        Datos del INE · Índice de Precios de Vivienda y Encuesta de Estructura
-        Salarial
-      </p>
+    <div className="max-w-7xl mx-auto px-6 py-10">
+      {/* Hero */}
+      <div className="mb-8">
+        <h2 className="text-3xl font-medium text-gray-900 mb-2">
+          ¿Puedes permitirte vivir aquí?
+        </h2>
+        <p className="text-gray-400 text-sm">
+          Selecciona tu comunidad, provincia o municipio e introduce tu salario.
+          Te decimos si puedes comprar un piso de 70 m².
+        </p>
+      </div>
 
       {/* Controles */}
-      <div className="bg-white border border-gray-100 rounded-xl p-4 mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className="text-xs text-gray-500 block mb-1">
-            Comunidad autónoma
-          </label>
-          <select
-            value={region}
-            onChange={(e) => setRegion(e.target.value)}
-            className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-900"
-          >
-            {Object.keys(REGIONS).map((r) => (
-              <option key={r}>{r}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="text-xs text-gray-500 block mb-1">
-            Salario bruto anual:{" "}
-            <span className="font-medium text-gray-900">
-              {salary.toLocaleString("es-ES")} €
-            </span>
-          </label>
+      <div className="bg-white border border-gray-100 rounded-2xl p-5 mb-6 grid grid-cols-1 md:grid-cols-3 gap-5">
+        <LocationSelector
+          ccaa={ccaa}
+          provincia={provincia}
+          municipio={municipio}
+          onCcaaChange={setCcaa}
+          onProvinciaChange={setProvincia}
+          onMunicipioChange={setMunicipio}
+          ccaaList={Object.keys(REGIONS)}
+          provincias={provinciasData}
+          municipios={municipiosData}
+        />
+        <div className="flex flex-col justify-center gap-2">
+          <label className="text-xs text-gray-400">Salario bruto anual</label>
+          <p className="text-2xl font-medium text-gray-900">
+            {salary.toLocaleString("es-ES")} €
+          </p>
           <input
             type="range"
             min="15000"
@@ -120,20 +149,22 @@ export default function Dashboard() {
             onChange={(e) => setSalary(Number(e.target.value))}
             className="w-full"
           />
+          <div className="flex justify-between text-xs text-gray-300">
+            <span>15.000 €</span>
+            <span>80.000 €</span>
+          </div>
         </div>
-        <div>
-          <label className="text-xs text-gray-500 block mb-1">
-            Tipo de vivienda
-          </label>
+        <div className="flex flex-col justify-center gap-2">
+          <label className="text-xs text-gray-400">Tipo de vivienda</label>
           <div className="flex gap-2">
             {["resale", "new"].map((t) => (
               <button
                 key={t}
                 onClick={() => setType(t)}
-                className={`flex-1 text-sm py-2 rounded-lg border transition-colors ${
+                className={`flex-1 text-sm py-2.5 rounded-xl border transition-colors ${
                   type === t
-                    ? "bg-blue-50 border-blue-200 text-blue-800 font-medium"
-                    : "bg-white border-gray-200 text-gray-500"
+                    ? "bg-gray-900 border-gray-900 text-white font-medium"
+                    : "bg-white border-gray-200 text-gray-400 hover:border-gray-300"
                 }`}
               >
                 {t === "resale" ? "Segunda mano" : "Nueva"}
@@ -143,13 +174,76 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Tarjetas de métricas */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+      {/* Resultado principal */}
+      <div className="bg-white border border-gray-100 rounded-2xl p-6 mb-6">
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <p className="text-xs text-gray-400 mb-1">
+              {locationLabel} · precio medio m²
+            </p>
+            <p className="text-5xl font-medium text-gray-900">
+              {metrics.pricePerSqm.toLocaleString("es-ES")} €
+            </p>
+            <p className="text-xs text-gray-300 mt-1">
+              Fuente: Ministerio de Vivienda
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-gray-400 mb-1">% salario en hipoteca</p>
+            <p
+              className={`text-5xl font-medium ${
+                metrics.salaryPct > 50
+                  ? "text-red-500"
+                  : metrics.salaryPct > 30
+                    ? "text-amber-500"
+                    : "text-green-500"
+              }`}
+            >
+              {metrics.salaryPct}%
+            </p>
+            <span
+              className={`text-xs font-medium px-2 py-1 rounded-full inline-block mt-1 ${
+                metrics.salaryPct > 50
+                  ? "bg-red-50 text-red-600"
+                  : metrics.salaryPct > 30
+                    ? "bg-amber-50 text-amber-600"
+                    : "bg-green-50 text-green-600"
+              }`}
+            >
+              {metrics.label}
+            </span>
+          </div>
+        </div>
+
+        {/* Barra */}
+        <div className="mt-4">
+          <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{
+                width: `${Math.min(metrics.salaryPct, 100)}%`,
+                background: barColor,
+              }}
+            />
+            <div
+              className="absolute top-0 bottom-0 w-px bg-gray-300"
+              style={{ left: "30%" }}
+            />
+          </div>
+          <div className="flex justify-between text-xs text-gray-300 mt-1">
+            <span>0%</span>
+            <span style={{ marginLeft: "28%" }}>30% recomendado</span>
+            <span>100%</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Métricas secundarias */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
         <MetricCard
-          title="Precio medio m²"
-          value={`${metrics.pricePerSqm.toLocaleString("es-ES")} €`}
-          subtitle="+12,9% anual"
-          status="danger"
+          title="Cuota mensual"
+          value={`${metrics.monthlyPayment.toLocaleString("es-ES")} €`}
+          subtitle="30 años · 3,5% TAE"
         />
         <MetricCard
           title="Esfuerzo salarial"
@@ -157,66 +251,55 @@ export default function Dashboard() {
           subtitle="para comprar 70 m²"
         />
         <MetricCard
-          title="Cuota mensual"
-          value={`${metrics.monthlyPayment.toLocaleString("es-ES")} €`}
-          subtitle="30 años · 3,5% TAE"
-        />
-        <MetricCard
-          title="% salario en hipoteca"
-          value={`${metrics.salaryPct}%`}
-          subtitle={metrics.label}
-          status={metrics.status}
+          title="Precio total del piso"
+          value={`${(metrics.pricePerSqm * 70).toLocaleString("es-ES")} €`}
+          subtitle="entrada mínima 20%"
         />
       </div>
 
-      {/* Barra de accesibilidad */}
-      <div className="bg-white border border-gray-100 rounded-xl p-4 mb-4">
-        <div className="flex justify-between text-xs text-gray-500 mb-2">
-          <span>Umbral de accesibilidad</span>
-          <span>Recomendado: máx. 30% del salario neto</span>
-        </div>
-        <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all duration-500 ${
-              metrics.salaryPct > 50
-                ? "bg-red-400"
-                : metrics.salaryPct > 30
-                  ? "bg-amber-400"
-                  : "bg-green-400"
-            }`}
-            style={{ width: `${Math.min(metrics.salaryPct, 100)}%` }}
+      {/* Gráfico y tabla en dos columnas en pantallas grandes */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-white border border-gray-100 rounded-2xl p-5">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <p className="text-sm font-medium text-gray-900">
+                Evolución de precios · {ccaa} vs Nacional
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Subida acumulada desde el primer trimestre de 2022
+              </p>
+            </div>
+            <span className="text-xs text-gray-300 bg-gray-50 px-2 py-1 rounded-lg">
+              INE · IPV Base 2022
+            </span>
+          </div>
+          <PriceChart
+            data={loadingChart ? [] : chartData}
+            selectedRegion={ccaa}
           />
         </div>
-        <div className="flex justify-between text-xs text-gray-400 mt-1">
-          <span>0%</span>
-          <span style={{ marginLeft: "28%" }}>30%</span>
-          <span>100%</span>
+
+        <div className="lg:col-span-1 bg-white border border-gray-100 rounded-2xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-50">
+            <span className="text-sm font-medium text-gray-900">
+              Todas las comunidades
+            </span>
+            <p className="text-xs text-gray-400 mt-0.5">ordenadas por precio</p>
+          </div>
+          <div className="overflow-y-auto" style={{ maxHeight: "340px" }}>
+            <RegionTable
+              regions={REGIONS}
+              selectedRegion={ccaa}
+              onSelect={(r) => {
+                setCcaa(r);
+                setProvincia("");
+                setMunicipio("");
+              }}
+              type={type}
+            />
+          </div>
         </div>
       </div>
-
-      {/* Gráfico */}
-      <div className="bg-white border border-gray-100 rounded-xl p-4 mb-4">
-        <div className="flex justify-between items-center mb-3">
-          <span className="text-sm font-medium text-gray-900">
-            Evolución IPV · {region} vs Nacional
-          </span>
-          <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded">
-            Subida desde el primer trimestre de 2022
-          </span>
-        </div>
-        <PriceChart
-          data={loadingChart ? [] : chartData}
-          selectedRegion={region}
-        />
-      </div>
-
-      {/* Tabla comparativa */}
-      <RegionTable
-        regions={REGIONS}
-        selectedRegion={region}
-        onSelect={setRegion}
-        type={type}
-      />
     </div>
   );
 }

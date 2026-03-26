@@ -1,13 +1,13 @@
 export default function Header() {
   return (
-    <header className="border-b border-gray-100 bg-white mb-8">
-      <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+    <header className="border-b border-gray-100 bg-white">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <div>
           <h1 className="text-lg font-medium text-gray-900">
-            Accesibilidad a la vivienda en España
+            cuantocuestaunpiso.es
           </h1>
           <p className="text-xs text-gray-400">
-            Basado en datos abiertos del INE
+            Datos oficiales del INE y Ministerio de Vivienda
           </p>
         </div>
         <a
