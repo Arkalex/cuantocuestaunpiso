@@ -57,6 +57,14 @@ PROVINCIAS_A_CCAA = {
     'Ceuta': 'Ceuta', 'Melilla': 'Melilla',
 }
 
+# Municipios mal agrupados en el Excel del Ministerio — corrección manual
+# El Excel a veces deja la celda de provincia vacía y el parser hereda
+# la provincia anterior incorrectamente
+MUNICIPIOS_PROVINCIA_OVERRIDE = {
+    'Azuqueca de Henares': 'Guadalajara',  # aparece bajo Cuenca en el Excel
+    'Illescas': 'Toledo',                  # aparece bajo Guadalajara en el Excel
+}
+
 def download_excel(url):
     print(f"Descargando {url}...")
     response = requests.get(url, timeout=30)
@@ -65,13 +73,9 @@ def download_excel(url):
 
 def process_provincias(content):
     wb = xlrd.open_workbook(file_contents=content)
-
-    # Usar siempre la última hoja — contiene los datos más recientes
     ws = wb.sheet_by_index(wb.nsheets - 1)
     print(f"Hoja de provincias: {wb.sheet_names()[-1]}")
 
-    # Encontrar la última columna con datos numéricos válidos en la fila TOTAL NACIONAL
-    # TOTAL NACIONAL siempre está en fila 14
     last_col = 2
     for j in range(2, ws.ncols):
         val = ws.cell_value(14, j)
@@ -79,7 +83,6 @@ def process_provincias(content):
             last_col = j
 
     print(f"Última columna con datos: {last_col}")
-    print(f"Cabecera trimestre: año={ws.cell_value(11, last_col)} trim={ws.cell_value(13, last_col)}")
     print(f"TOTAL NACIONAL: {ws.cell_value(14, last_col)} €/m²")
 
     provincias = {}
@@ -147,18 +150,22 @@ def process_municipios(content):
 
         if prov and prov not in ('None', ''):
             current_provincia = prov
+
         if not mun or mun in ('None', ''):
             continue
         if not val or not isinstance(val, (int, float)) or val <= 0:
             continue
 
-        ccaa = PROVINCIAS_A_CCAA.get(current_provincia)
+        # Aplicar corrección si el municipio está mal agrupado en el Excel
+        provincia_final = MUNICIPIOS_PROVINCIA_OVERRIDE.get(mun, current_provincia)
+
+        ccaa = PROVINCIAS_A_CCAA.get(provincia_final)
         if not ccaa:
             continue
 
         municipios[mun] = {
             'pricePerSqm': round(val),
-            'provincia': current_provincia,
+            'provincia': provincia_final,
             'ccaa': ccaa
         }
 
@@ -171,8 +178,6 @@ if __name__ == "__main__":
     prov_content = download_excel(PROVINCIAS_URL)
     provincias = process_provincias(prov_content)
     print(f"\nProvincias encontradas: {len(provincias)}")
-    for k, v in list(provincias.items())[:5]:
-        print(f"  {k}: {v}")
 
     with open(os.path.join(output_dir, 'provincias.json'), 'w', encoding='utf-8') as f:
         json.dump(provincias, f, ensure_ascii=False, indent=2)
@@ -181,8 +186,12 @@ if __name__ == "__main__":
     mun_content = download_excel(MUNICIPIOS_URL)
     municipios = process_municipios(mun_content)
     print(f"\nMunicipios encontrados: {len(municipios)}")
-    for k, v in list(municipios.items())[:5]:
-        print(f"  {k}: {v}")
+
+    # Verificar correcciones aplicadas
+    print("\nVerificando correcciones:")
+    for mun in MUNICIPIOS_PROVINCIA_OVERRIDE:
+        if mun in municipios:
+            print(f"  {mun} → provincia: {municipios[mun]['provincia']} ✓")
 
     with open(os.path.join(output_dir, 'municipios.json'), 'w', encoding='utf-8') as f:
         json.dump(municipios, f, ensure_ascii=False, indent=2)
