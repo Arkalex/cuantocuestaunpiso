@@ -1,0 +1,33 @@
+name: Update housing data
+
+on:
+  schedule:
+    - cron: "0 8 1 1,4,7,10 *" # 1 de enero, abril, julio y octubre a las 8:00
+  workflow_dispatch: # permite lanzarlo manualmente desde GitHub
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install xlrd requests
+
+      - name: Run data update script
+        run: python3 scripts/process_ministerio.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/data/provincias.json public/data/municipios.json
+          git diff --staged --quiet || git commit -m "update housing data $(date +'%Y-%m-%d')"
+          git push
