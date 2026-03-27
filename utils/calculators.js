@@ -1,24 +1,14 @@
-
-export interface PurchaseCostInputs {
-  price: number;
-  isNewBuild: boolean;
-  itpRate?: number; // NEW: Accept dynamic ITP from the Dashboard
-  agencyFeePct?: number; 
-  refurbishment?: number; 
-}
-
-
 /**
  * Calculates Notary fees based on Spanish scale (Real Decreto 1426/1989)
  * Moved from your existing utils.ts
  */
-export function CalculateNotaryFees(purchasePrice: number): number {
+export function CalculateNotaryFees(purchasePrice) {
   const precioFolioAutorizado = 3.02;
   const precioFolioSimple = 0.6;
   const iva = 0.21;
   
-  function actoDocumentado(price: number): number {
-    const escala: [number, number][] = [
+  function actoDocumentado(price) {
+    const escala = [
       [6010.12, 90.15], [30050.6, 0.0045], [60101.21, 0.0015], 
       [150253.03, 0.001], [601012.1, 0.0005], [6010121.04, 0.0003], 
       [Infinity, 0.00015]
@@ -37,7 +27,7 @@ export function CalculateClosingCosts({
   itpRate = 0.06, // Defaults to Madrid if not provided
   agencyFeePct = 0, 
   refurbishment = 0 
-}: PurchaseCostInputs) {
+}) {
   
   // 1. Taxes
   const mainTaxRate = isNewBuild ? 0.10 : itpRate; 
