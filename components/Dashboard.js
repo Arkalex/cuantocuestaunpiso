@@ -5,6 +5,7 @@ import MetricCard from "./MetricCard";
 import PriceChart from "./PriceChart";
 import RegionTable from "./RegionTable";
 import LocationSelector from "./LocationSelector";
+import { CalculateClosingCosts } from "@/utils/calculators";
 
 const REGIONS = {
   Andalucía: { pricePerSqm: 1540, avgSalary: 22000 },
@@ -28,10 +29,45 @@ const REGIONS = {
   Melilla: { pricePerSqm: 1050, avgSalary: 21500 },
 };
 
-function calculateMetrics(pricePerSqm, salary, type) {
+// source: https://www.idealista.com/news/inmobiliario/vivienda/2024/09/18/819047-itp-por-comunidades-2024-conoce-los-tipos-aplicables
+const ITP_RATES = {
+  "Andalucía": 0.07,
+  "Aragón": 0.10, // Max of 8-10% range
+  "Asturias": 0.10, // Max of 8-10% range
+  "Baleares": 0.13, // Max of 8-13% range
+  "Canarias": 0.065,
+  "Cantabria": 0.09,
+  "Castilla-La Mancha": 0.09,
+  "Castilla y León": 0.10, // Max of 8-10% range
+  "Cataluña": 0.13, // Max of 10-13% range
+  "C. Valenciana": 0.11, // Max of 9-11% range
+  "Extremadura": 0.11, // Max of 8-11% range
+  "Galicia": 0.08,
+  "La Rioja": 0.07,
+  "Madrid": 0.06,
+  "Murcia": 0.08,
+  "Navarra": 0.06,
+  "País Vasco": 0.07,
+  "Ceuta": 0.06,
+  "Melilla": 0.06,
+};
+
+function calculateMetrics(pricePerSqm, salary, type, ccaa) {
   const multiplier = type === "new" ? 1.18 : 1;
   const finalPrice = Math.round(pricePerSqm * multiplier);
   const totalPrice = finalPrice * 70;
+
+  // calculate closing costs
+  const closingCosts = CalculateClosingCosts({
+    price: totalPrice,
+    isNewBuild: type === "new",
+    itpRate: ITP_RATES[ccaa] || 0.06
+  });
+
+  // The actual cash the user needs in the bank
+  const downPayment = Math.round(totalPrice * 0.20);
+  const totalSavingsNeeded = downPayment + closingCosts.totalSunkCosts;
+
   const yearsOfSalary = (totalPrice / salary).toFixed(1);
   const principal = totalPrice * 0.8;
   const monthlyRate = 0.035 / 12;
@@ -60,6 +96,9 @@ function calculateMetrics(pricePerSqm, salary, type) {
     salaryPct,
     status,
     label,
+    purchaseCosts: Math.round(closingCosts.totalSunkCosts),
+    totalSavingsNeeded,
+    effectiveTaxRate: ((closingCosts.totalSunkCosts / totalPrice) * 100).toFixed(1)
   };
 }
 
@@ -101,7 +140,7 @@ export default function Dashboard() {
   })();
 
   const locationLabel = municipio || provincia || ccaa;
-  const metrics = calculateMetrics(activePricePerSqm, salary, type);
+  const metrics = calculateMetrics(activePricePerSqm, salary, type, ccaa);
   const barColor =
     metrics.salaryPct > 50
       ? "#f87171"
@@ -239,7 +278,7 @@ export default function Dashboard() {
       </div>
 
       {/* Métricas secundarias */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <MetricCard
           title="Cuota mensual"
           value={`${metrics.monthlyPayment.toLocaleString("es-ES")} €`}
@@ -254,6 +293,11 @@ export default function Dashboard() {
           title="Precio total del piso"
           value={`${(metrics.pricePerSqm * 70).toLocaleString("es-ES")} €`}
           subtitle="entrada mínima 20%"
+        />
+        <MetricCard
+          title="Ahorros necesarios"
+          value={`${(metrics.totalSavingsNeeded ).toLocaleString("es-ES", { maximumFractionDigits: 0 })} €`}
+          subtitle={`Entrada  + Gastos (${(metrics.pricePerSqm * 70 * .2).toLocaleString("es-ES")} € + ${metrics.purchaseCosts.toLocaleString("es-ES", { maximumFractionDigits: 0 })} €)`}
         />
       </div>
 
