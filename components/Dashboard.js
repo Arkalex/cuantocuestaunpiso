@@ -68,9 +68,6 @@ function calculateMetrics(pricePerSqm, salary, type, ccaa) {
   const downPayment = Math.round(totalPrice * 0.20);
   const totalSavingsNeeded = downPayment + closingCosts.totalSunkCosts;
 
-  const costPercentage = type === "new" ? 0.115 : (ITP_RATES[ccaa] || 0.10);
-  const purchaseCosts = Math.round(totalPrice * costPercentage);
-
   const yearsOfSalary = (totalPrice / salary).toFixed(1);
   const principal = totalPrice * 0.8;
   const monthlyRate = 0.035 / 12;
