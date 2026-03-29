@@ -5,6 +5,10 @@ import MetricCard from "./MetricCard";
 import PriceChart from "./PriceChart";
 import RegionTable from "./RegionTable";
 import LocationSelector from "./LocationSelector";
+import AdvancedControls from "./AdvancedControls";
+import CostBreakdown from "./CostBreakdown";
+import AffordabilityTimeline from "./AffordabilityTimeline";
+import ScenarioComparison from "./ScenarioComparison";
 
 const REGIONS = {
   Andalucía: { pricePerSqm: 1540, avgSalary: 22000 },
@@ -28,18 +32,23 @@ const REGIONS = {
   Melilla: { pricePerSqm: 1050, avgSalary: 21500 },
 };
 
-function calculateMetrics(pricePerSqm, salary, type) {
+function calculateMetrics(pricePerSqm, salary, type, surfaceM2 = 70, yearsHypotheca = 30, interestRate = 3.5, downPaymentPct = 20) {
   const multiplier = type === "new" ? 1.18 : 1;
-  const finalPrice = Math.round(pricePerSqm * multiplier);
-  const totalPrice = finalPrice * 70;
+  const finalPricePerSqm = Math.round(pricePerSqm * multiplier);
+  const totalPrice = finalPricePerSqm * surfaceM2;
   const yearsOfSalary = (totalPrice / salary).toFixed(1);
-  const principal = totalPrice * 0.8;
-  const monthlyRate = 0.035 / 12;
-  const numPayments = 360;
+  
+  const downPayment = totalPrice * (downPaymentPct / 100);
+  const principal = totalPrice - downPayment;
+  
+  const monthlyRate = interestRate / 100 / 12;
+  const numPayments = yearsHypotheca * 12;
+  
   const monthlyPayment = Math.round(
     (principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments))) /
       (Math.pow(1 + monthlyRate, numPayments) - 1),
   );
+  
   const netSalary = salary * 0.72;
   const salaryPct = Math.round(((monthlyPayment * 12) / netSalary) * 100);
 
@@ -54,12 +63,18 @@ function calculateMetrics(pricePerSqm, salary, type) {
   }
 
   return {
-    pricePerSqm: finalPrice,
+    pricePerSqm: finalPricePerSqm,
     yearsOfSalary,
     monthlyPayment,
     salaryPct,
     status,
     label,
+    totalPrice,
+    downPayment,
+    surfaceM2,
+    yearsHypotheca,
+    interestRate,
+    downPaymentPct,
   };
 }
 
@@ -73,6 +88,13 @@ export default function Dashboard() {
   const [loadingChart, setLoadingChart] = useState(true);
   const [provinciasData, setProvinciasData] = useState({});
   const [municipiosData, setMunicipiosData] = useState({});
+  
+  // Advanced Mode
+  const [isAdvancedMode, setIsAdvancedMode] = useState(false);
+  const [surfaceM2, setSurfaceM2] = useState(70);
+  const [yearsHypotheca, setYearsHypotheca] = useState(30);
+  const [interestRate, setInterestRate] = useState(3.5);
+  const [downPaymentPct, setDownPaymentPct] = useState(20);
 
   useEffect(() => {
     fetch("/api/ine")
@@ -101,7 +123,17 @@ export default function Dashboard() {
   })();
 
   const locationLabel = municipio || provincia || ccaa;
-  const metrics = calculateMetrics(activePricePerSqm, salary, type);
+  
+  // Métricas básicas (siempre con valores por defecto)
+  const basicMetrics = calculateMetrics(activePricePerSqm, salary, type, 70, 30, 3.5, 20);
+  
+  // Métricas avanzadas (con valores personalizados si está en modo avanzado)
+  const advancedMetrics = isAdvancedMode
+    ? calculateMetrics(activePricePerSqm, salary, type, surfaceM2, yearsHypotheca, interestRate, downPaymentPct)
+    : basicMetrics;
+  
+  const metrics = advancedMetrics;
+  
   const barColor =
     metrics.salaryPct > 50
       ? "#f87171"
@@ -243,22 +275,86 @@ export default function Dashboard() {
         <MetricCard
           title="Cuota mensual"
           value={`${metrics.monthlyPayment.toLocaleString("es-ES")} €`}
-          subtitle="30 años · 3,5% TAE"
+          subtitle={isAdvancedMode ? `${yearsHypotheca} años · ${interestRate.toFixed(2)}%` : "30 años · 3,5% TAE"}
         />
         <MetricCard
           title="Esfuerzo salarial"
           value={`${metrics.yearsOfSalary} años`}
-          subtitle="para comprar 70 m²"
+          subtitle={`para comprar ${surfaceM2} m²`}
         />
         <MetricCard
           title="Precio total del piso"
-          value={`${(metrics.pricePerSqm * 70).toLocaleString("es-ES")} €`}
-          subtitle="entrada mínima 20%"
+          value={`${metrics.totalPrice.toLocaleString("es-ES")} €`}
+          subtitle={`${downPaymentPct}% entrada = ${Math.round(metrics.downPayment).toLocaleString("es-ES")} €`}
         />
       </div>
 
+      {/* Toggle Modo Avanzado */}
+      <div className="mb-6 flex justify-center">
+        <button
+          onClick={() => setIsAdvancedMode(!isAdvancedMode)}
+          className={`px-6 py-3 rounded-xl font-semibold text-sm transition-all transform ${
+            isAdvancedMode
+              ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          {isAdvancedMode ? "🎛️ Modo Avanzado (Activo)" : "🎛️ Activar Simulador Avanzado"}
+        </button>
+      </div>
+
+      {/* Simulador Avanzado */}
+      {isAdvancedMode && (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <AdvancedControls
+              surfaceM2={surfaceM2}
+              setSurfaceM2={setSurfaceM2}
+              yearsHypotheca={yearsHypotheca}
+              setYearsHypotheca={setYearsHypotheca}
+              interestRate={interestRate}
+              setInterestRate={setInterestRate}
+              downPaymentPct={downPaymentPct}
+              setDownPaymentPct={setDownPaymentPct}
+              onReset={() => {
+                setSurfaceM2(70);
+                setYearsHypotheca(30);
+                setInterestRate(3.5);
+                setDownPaymentPct(20);
+              }}
+            />
+            <ScenarioComparison
+              basicMetrics={basicMetrics}
+              advancedMetrics={advancedMetrics}
+              isAdvancedMode={isAdvancedMode}
+            />
+          </div>
+
+          <CostBreakdown
+            pricePerSqm={metrics.pricePerSqm}
+            totalPrice={metrics.totalPrice}
+            monthlyPayment={metrics.monthlyPayment}
+            downPaymentPct={downPaymentPct}
+            yearsHypotheca={yearsHypotheca}
+            interestRate={interestRate}
+            salaryPct={metrics.salaryPct}
+            status={metrics.status}
+            status_label={metrics.label}
+          />
+
+          <div className="mb-6" />
+
+          <AffordabilityTimeline
+            downPaymentNeeded={Math.max(0, Math.round(metrics.downPayment) - 50000)}
+            totalInitialNeeded={Math.max(0, Math.round(metrics.downPayment + metrics.totalPrice * 0.145 - 50000))}
+            currentSalary={salary}
+            monthlyPayment={metrics.monthlyPayment}
+          />
+        </>
+      )}
+
       {/* Gráfico y tabla en dos columnas en pantallas grandes */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
         <div className="lg:col-span-2 bg-white border border-gray-100 rounded-2xl p-5">
           <div className="flex justify-between items-center mb-4">
             <div>
