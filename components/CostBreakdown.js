@@ -1,7 +1,5 @@
 "use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
-
 export default function CostBreakdown({
   pricePerSqm,
   totalPrice,
@@ -26,13 +24,6 @@ export default function CostBreakdown({
 
   const initialCosts = itp + taskationFee + notarial + registro;
   const totalInitialWithDownPayment = downPayment + initialCosts;
-
-  // Datos para el pie chart
-  const pieData = [
-    { name: "Entrada (down payment)", value: downPayment, color: "#3b82f6" },
-    { name: "Intereses (30 años)", value: totalInterests, color: "#f59e0b" },
-    { name: "Costos iniciales", value: initialCosts, color: "#ef4444" },
-  ];
 
   const affordabilityScore = Math.max(0, 100 - salaryPct);
 
@@ -194,63 +185,6 @@ export default function CostBreakdown({
           </span>{" "}
           disponibles antes de comprar (entrada + costos iniciales)
         </p>
-      </div>
-
-      {/* Pie chart de distribución */}
-      <div className="bg-white border border-gray-100 rounded-2xl p-6">
-        <h3 className="text-sm font-semibold text-gray-900 mb-4">
-          📊 Distribución de dinero (30 años)
-        </h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={pieData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={({ name, value }) => (
-                <span className="text-xs">
-                  {name}: {(value / 1000).toFixed(0)}k€
-                </span>
-              )}
-              outerRadius={100}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {pieData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip
-              formatter={(value) => `${(value / 1000).toFixed(1)}k€`}
-            />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-
-        <div className="grid grid-cols-3 gap-3 mt-4">
-          {pieData.map((item) => (
-            <div
-              key={item.name}
-              className="p-3 rounded-lg border"
-              style={{ borderColor: item.color + "33", backgroundColor: item.color + "08" }}
-            >
-              <p
-                className="text-xs font-semibold mb-1"
-                style={{ color: item.color }}
-              >
-                {item.name.split("(")[0]}
-              </p>
-              <p className="text-lg font-bold text-gray-900">
-                {(item.value / 1000).toFixed(1)}k€
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                {((item.value / (totalPrice + totalInterests + initialCosts)) * 100).toFixed(0)}
-                %
-              </p>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Affordability Score */}
