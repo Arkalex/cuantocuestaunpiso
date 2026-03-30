@@ -233,7 +233,7 @@ export default function Dashboard() {
               type="range"
               min="30"
               max="150"
-              step="5"
+              step="1"
               value={surfaceM2}
               onChange={(e) => setSurfaceM2(Number(e.target.value))}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
@@ -450,8 +450,8 @@ export default function Dashboard() {
             />
             
             <AffordabilityTimeline
-              downPaymentNeeded={Math.max(0, Math.round(metrics.downPayment) - 50000)}
-              totalInitialNeeded={Math.max(0, Math.round(metrics.downPayment + metrics.totalPrice * 0.145 - 50000))}
+              downPaymentNeeded={Math.max(0, Math.round(metrics.downPayment))}
+              totalInitialNeeded={Math.max(0, Math.round(metrics.downPayment + metrics.totalPrice * 0.145))}
               currentSalary={salary}
               monthlyPayment={metrics.monthlyPayment}
             />

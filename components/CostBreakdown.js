@@ -115,17 +115,27 @@ export default function CostBreakdown({
           <p className="text-xs text-gray-400 mt-1">a {yearsHypotheca} años</p>
         </div>
 
-        <div className="bg-white border border-gray-100 rounded-xl p-4">
-          <p className="text-xs text-gray-500 mb-2">Total con intereses</p>
+        <div className="bg-white border border-gray-100 rounded-xl p-4 relative">
+          <div className="flex items-center gap-1 mb-2">
+            <p className="text-xs text-gray-500">Total con intereses</p>
+            <div className="relative group">
+              <button
+                type="button"
+                aria-label="Informacion sobre total con intereses"
+                className="w-4 h-4 rounded-full border border-gray-300 text-gray-500 text-[10px] leading-none flex items-center justify-center hover:text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-200"
+              >
+                i
+              </button>
+              <div className="absolute left-1/2 -translate-x-1/2 top-6 w-56 p-2 rounded-lg bg-gray-900 text-white text-[11px] leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-opacity z-20 shadow-lg pointer-events-none">
+                Incluye solo el coste del prestamo (capital + intereses). No incluye entrada ni gastos iniciales (ITP, notaria, registro, etc.).
+              </div>
+            </div>
+          </div>
           <p className="text-xl font-bold text-amber-600">
             {(loanAmount + totalInterests).toLocaleString("es-ES")}€
           </p>
           <p className="text-xs text-gray-400 mt-1">
             +{totalInterests.toLocaleString("es-ES")}€ intereses
-          </p>
-          <p className="text-[11px] text-gray-400 mt-2 leading-relaxed">
-            Incluye solo el coste del prestamo (capital + intereses). No incluye
-            entrada ni gastos iniciales (ITP, notaria, registro, etc.).
           </p>
         </div>
       </div>
