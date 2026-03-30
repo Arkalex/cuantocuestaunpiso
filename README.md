@@ -134,14 +134,14 @@ Los datos del Ministerio de Vivienda se actualizan automáticamente cada trimest
 
 El Ministerio publica los datos con 6-8 semanas de retraso respecto al fin de cada trimestre. El cron está ajustado a esas fechas reales de publicación:
 
-| Trimestre    | Datos publicados aprox. | Cron ejecuta    |
-| ------------ | ----------------------- | --------------- |
-| T1 (ene-mar) | Mayo o junio            | 15 de mayo      |
-| T2 (abr-jun) | Agosto o septiembre     | 15 de agosto    |
-| T3 (jul-sep) | Noviembre o diciembre   | 15 de noviembre |
-| T4 (oct-dic) | Febrero o marzo         | 15 de febrero   |
+| Trimestre    | Datos publicados aprox. | Cron ejecuta       |
+| ------------ | ----------------------- | ------------------ |
+| T4 (oct-dic) | Febrero o marzo         | 1 de enero         |
+| T1 (ene-mar) | Mayo o junio            | 1 de abril         |
+| T2 (abr-jun) | Agosto o septiembre     | 1 de julio         |
+| T3 (jul-sep) | Noviembre o diciembre   | 1 de octubre       |
 
-El cron configurado es `0 9 15 2,5,8,11 *` — día 15 de febrero, mayo, agosto y noviembre a las 9:00 UTC.
+El cron configurado es `0 8 1 1,4,7,10 *` — día 1 de enero, abril, julio y octubre a las 8:00 UTC.
 
 ### Qué hace el workflow
 
