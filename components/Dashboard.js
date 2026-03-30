@@ -372,7 +372,7 @@ export default function Dashboard() {
         />
         <MetricCard
           title="Precio total"
-          value={`${(metrics.totalPrice / 1000).toFixed(0)}k €`}
+          value={`${Math.round(metrics.totalPrice).toLocaleString("es-ES")} €`}
           subtitle={`${surfaceM2} m²`}
         />
         <MetricCard
@@ -382,12 +382,12 @@ export default function Dashboard() {
         />
         <MetricCard
           title="Financiación"
-          value={`${((metrics.totalPrice - metrics.downPayment) / 1000).toFixed(0)}k €`}
+          value={`${Math.round(metrics.totalPrice - metrics.downPayment).toLocaleString("es-ES")} €`}
           subtitle="A financiar"
         />
         <MetricCard
           title="Intereses totales"
-          value={`${(metrics.monthlyPayment * yearsHypotheca * 12 - (metrics.totalPrice - metrics.downPayment)).toLocaleString("es-ES")} €`}
+          value={`${Math.round(metrics.monthlyPayment * yearsHypotheca * 12 - (metrics.totalPrice - metrics.downPayment)).toLocaleString("es-ES")} €`}
           subtitle={`${yearsHypotheca} años`}
         />
       </div>
