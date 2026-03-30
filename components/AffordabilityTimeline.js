@@ -1,36 +1,47 @@
 export default function AffordabilityTimeline({
-  downPaymentNeeded = 0,
   totalInitialNeeded = 0,
   currentSalary = 28000,
   monthlyPayment = 0,
+  currentSavings = 20000,
 }) {
   // Sanitize inputs to prevent undefined errors
-  const downPaymentNeeded_safe = Math.max(0, downPaymentNeeded || 0);
   const totalInitialNeeded_safe = Math.max(0, totalInitialNeeded || 0);
   const currentSalary_safe = currentSalary || 28000;
   const monthlyPayment_safe = monthlyPayment || 0;
+  const currentSavings_safe = Math.max(0, currentSavings || 0);
+  const monthlyNetSalary = (currentSalary_safe * 0.72) / 12;
+  const remainingInitialNeeded = Math.max(
+    0,
+    Math.round(totalInitialNeeded_safe - currentSavings_safe),
+  );
 
-  // Si puedes comprarlo ahora
-  if (downPaymentNeeded_safe === 0) {
+  // Si puedes comprarlo ahora con el ahorro disponible
+  if (remainingInitialNeeded === 0) {
     return (
       <div className="bg-green-50 border border-green-200 rounded-2xl p-6">
         <h3 className="text-sm font-semibold text-gray-900 mb-3">
           🎉 ¡Puedes comprar ahora!
         </h3>
         <p className="text-sm text-gray-600">
-          Con tu salario actual de{" "}
+          Con un ahorro estimado de{" "}
+          <span className="font-semibold">
+            {currentSavings_safe.toLocaleString("es-ES")}€
+          </span>{" "}
+          y tu salario actual de{" "}
           <span className="font-semibold">
             {currentSalary_safe.toLocaleString("es-ES")}€ anuales
           </span>
-          , ya cuentas con la capacidad económica para acceder a una hipoteca
-          en estas condiciones. El próximo paso es ponerte en contacto con un
-          asesor hipotecario.
+          , ya cubres la entrada y los gastos iniciales en estas condiciones.
+          El siguiente paso es revisar condiciones hipotecarias con tu banco o
+          asesor.
+        </p>
+        <p className="text-xs text-green-700 mt-3">
+          Cuota estimada: {monthlyPayment_safe.toLocaleString("es-ES")}€/mes.
         </p>
       </div>
     );
   }
 
-  const monthlyNetSalary = (currentSalary_safe * 0.72) / 12;
   const monthlySavingsRates = [
     { rate: 100, label: "100€ mensuales" },
     { rate: 300, label: "300€ mensuales" },
@@ -45,18 +56,24 @@ export default function AffordabilityTimeline({
       </h3>
 
       <p className="text-sm text-gray-600 mb-6">
-        Si empiezas a ahorrar, aquí te mostramos cuánto tiempo te llevaría reunir
-        los{" "}
+        Con un ahorro actual estimado de{" "}
         <span className="font-semibold">
-          {totalInitialNeeded_safe.toLocaleString("es-ES")}€
+          {currentSavings_safe.toLocaleString("es-ES")}€
+        </span>
+        , te faltaría reunir{" "}
+        <span className="font-semibold">
+          {remainingInitialNeeded.toLocaleString("es-ES")}€
         </span>{" "}
-        necesarios (entrada + costos iniciales):
+        para cubrir entrada + costes iniciales:
       </p>
 
       <div className="space-y-4">
         {monthlySavingsRates.map((option) => {
-          const monthsNeeded = totalInitialNeeded_safe > 0 ? Math.ceil(totalInitialNeeded_safe / option.rate) : 0;
-          const yearsNeeded = (monthsNeeded / 12).toFixed(1);
+          const monthsNeeded = remainingInitialNeeded > 0 ? Math.ceil(remainingInitialNeeded / option.rate) : 0;
+          const yearsNeeded = (monthsNeeded / 12).toLocaleString("es-ES", {
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 1,
+          });
           const pctOfSalary = monthlyNetSalary > 0 ? ((option.rate / monthlyNetSalary) * 100).toFixed(0) : 0;
 
           let feasibility = "✅ Muy viable";
@@ -110,7 +127,7 @@ export default function AffordabilityTimeline({
 
               <div className="mt-3 relative h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
+                  className="h-full bg-linear-to-r from-blue-500 to-indigo-500 rounded-full"
                   style={{
                     width: "100%",
                     animation: `fill 0.8s ease-out`,

@@ -134,7 +134,26 @@ export default function Dashboard() {
 
   const viabilityScore = Math.max(0, Math.min(100, 100 - metrics.salaryPct));
   const viabilityStatus = viabilityScore >= 70 ? "ok" : viabilityScore >= 40 ? "warning" : "danger";
-  const effortYears = Number(metrics.yearsOfSalary).toFixed(1);
+  const effortYears = Number(metrics.yearsOfSalary).toLocaleString("es-ES", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+  const formattedInterestRate = interestRate.toLocaleString("es-ES", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  // Keep the roadmap total aligned with the detailed breakdown (same rounding by concept)
+  const downPaymentRounded = Math.round(metrics.totalPrice * (downPaymentPct / 100));
+  const initialCostsBreakdown =
+    Math.round(metrics.totalPrice * 0.07) +
+    Math.round(metrics.totalPrice * 0.008) +
+    Math.round(metrics.totalPrice * 0.005) +
+    Math.round(metrics.totalPrice * 0.002);
+  const totalInitialNeededForTimeline = Math.max(
+    0,
+    downPaymentRounded + initialCostsBreakdown,
+  );
 
   const handleResetAdvancedFilters = () => {
     setSurfaceM2(70);
@@ -269,7 +288,7 @@ export default function Dashboard() {
           <div className="flex flex-col gap-3">
             <div className="flex justify-between items-baseline">
               <label className="text-sm font-medium text-gray-600">Tasa de interés (TAE)</label>
-              <span className="text-2xl font-medium text-gray-900">{interestRate.toFixed(2)}%</span>
+              <span className="text-2xl font-medium text-gray-900">{formattedInterestRate}%</span>
             </div>
             <input
               type="range"
@@ -378,7 +397,7 @@ export default function Dashboard() {
         <MetricCard
           title="Cuota mensual"
           value={`${metrics.monthlyPayment.toLocaleString("es-ES")} €`}
-          subtitle={`${yearsHypotheca} años · ${interestRate.toFixed(2)}%`}
+          subtitle={`${yearsHypotheca} años · ${formattedInterestRate}%`}
         />
         <MetricCard
           title="Esfuerzo salarial"
@@ -450,10 +469,10 @@ export default function Dashboard() {
             />
             
             <AffordabilityTimeline
-              downPaymentNeeded={Math.max(0, Math.round(metrics.downPayment))}
-              totalInitialNeeded={Math.max(0, Math.round(metrics.downPayment + metrics.totalPrice * 0.145))}
+              totalInitialNeeded={totalInitialNeededForTimeline}
               currentSalary={salary}
               monthlyPayment={metrics.monthlyPayment}
+              currentSavings={20000}
             />
           </div>
         )}
