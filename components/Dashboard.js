@@ -132,6 +132,9 @@ export default function Dashboard() {
         ? "#fbbf24"
         : "#34d399";
 
+  const viabilityScore = Math.max(0, Math.min(100, 100 - metrics.salaryPct));
+  const viabilityStatus = viabilityScore >= 70 ? "ok" : viabilityScore >= 40 ? "warning" : "danger";
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
       {/* Hero */}
@@ -353,8 +356,15 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Métricas grid - 7 cards */}
+      {/* Métricas grid - 8 cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <MetricCard
+          title="Puntuación viabilidad"
+          value={`${viabilityScore}`}
+          subtitle={viabilityScore >= 70 ? "Viabilidad alta" : viabilityScore >= 40 ? "Atención" : "Revisar escenario"}
+          status={viabilityStatus}
+          highlight
+        />
         <MetricCard
           title="Precio/m²"
           value={`${metrics.pricePerSqm.toLocaleString("es-ES")} €`}
