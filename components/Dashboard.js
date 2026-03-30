@@ -136,6 +136,13 @@ export default function Dashboard() {
   const viabilityStatus = viabilityScore >= 70 ? "ok" : viabilityScore >= 40 ? "warning" : "danger";
   const effortYears = Number(metrics.yearsOfSalary).toFixed(1);
 
+  const handleResetAdvancedFilters = () => {
+    setSurfaceM2(70);
+    setYearsHypotheca(30);
+    setInterestRate(3.5);
+    setDownPaymentPct(20);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
       {/* Hero */}
@@ -203,7 +210,16 @@ export default function Dashboard() {
 
       {/* Finanación - Controles integrados */}
       <div className="bg-white border border-gray-100 rounded-2xl p-6 mb-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-6">Personaliza tu búsqueda</h3>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-medium text-gray-900">Personaliza tu búsqueda</h3>
+          <button
+            type="button"
+            onClick={handleResetAdvancedFilters}
+            className="text-xs font-medium text-gray-600 hover:text-gray-900 border border-gray-200 hover:border-gray-300 bg-white rounded-lg px-3 py-1.5 transition-colors"
+          >
+            Resetear filtros
+          </button>
+        </div>
         
         {/* Grid de 4 sliders */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

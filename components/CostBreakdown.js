@@ -30,7 +30,7 @@ export default function CostBreakdown({
   return (
     <div className="space-y-6">
       {/* Main Metric - Cuota Mensual */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-8">
+      <div className="bg-linear-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-8">
         <p className="text-sm text-gray-600 mb-2">Cuota mensual de hipoteca</p>
         <div className="flex items-baseline gap-2 mb-2">
           <span className="text-6xl font-bold text-blue-600">
@@ -123,6 +123,10 @@ export default function CostBreakdown({
           <p className="text-xs text-gray-400 mt-1">
             +{totalInterests.toLocaleString("es-ES")}€ intereses
           </p>
+          <p className="text-[11px] text-gray-400 mt-2 leading-relaxed">
+            Incluye solo el coste del prestamo (capital + intereses). No incluye
+            entrada ni gastos iniciales (ITP, notaria, registro, etc.).
+          </p>
         </div>
       </div>
 
@@ -188,12 +192,12 @@ export default function CostBreakdown({
       </div>
 
       {/* Affordability Score */}
-      <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-2xl p-6">
+      <div className="bg-linear-to-r from-green-50 to-blue-50 border border-green-200 rounded-2xl p-6">
         <h3 className="text-sm font-semibold text-gray-900 mb-4">
           🎯 Tu puntuación de viabilidad
         </h3>
         <div className="flex items-center gap-6">
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <div className="relative w-32 h-32">
               <svg className="w-full h-full transform -rotate-90">
                 <circle
