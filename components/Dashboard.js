@@ -134,6 +134,7 @@ export default function Dashboard() {
 
   const viabilityScore = Math.max(0, Math.min(100, 100 - metrics.salaryPct));
   const viabilityStatus = viabilityScore >= 70 ? "ok" : viabilityScore >= 40 ? "warning" : "danger";
+  const effortYears = Number(metrics.yearsOfSalary).toFixed(1);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
@@ -356,25 +357,18 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Métricas grid - 8 cards */}
+      {/* Métricas grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        <MetricCard
-          title="Puntuación viabilidad"
-          value={`${viabilityScore}`}
-          subtitle={viabilityScore >= 70 ? "Viabilidad alta" : viabilityScore >= 40 ? "Atención" : "Revisar escenario"}
-          status={viabilityStatus}
-          highlight
-        />
-        <MetricCard
-          title="Precio/m²"
-          value={`${metrics.pricePerSqm.toLocaleString("es-ES")} €`}
-          subtitle={locationLabel}
-        />
         <MetricCard
           title="Cuota mensual"
           value={`${metrics.monthlyPayment.toLocaleString("es-ES")} €`}
           subtitle={`${yearsHypotheca} años · ${interestRate.toFixed(2)}%`}
         />
+        <MetricCard
+          title="Esfuerzo salarial"
+          value={`${effortYears} años`}
+          subtitle={`para comprar ${surfaceM2} m²`}
+        />        
         <MetricCard
           title="Impacto salarial"
           value={`${metrics.salaryPct}%`}
@@ -399,6 +393,13 @@ export default function Dashboard() {
           title="Intereses totales"
           value={`${Math.round(metrics.monthlyPayment * yearsHypotheca * 12 - (metrics.totalPrice - metrics.downPayment)).toLocaleString("es-ES")} €`}
           subtitle={`${yearsHypotheca} años`}
+        />
+        <MetricCard
+          title="Puntuación"
+          value={`${viabilityScore}`}
+          subtitle={viabilityScore >= 70 ? "Viabilidad alta" : viabilityScore >= 40 ? "Atención" : "Revisar escenario"}
+          status={viabilityStatus}
+          highlight
         />
       </div>
 

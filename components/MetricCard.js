@@ -15,7 +15,7 @@ export default function MetricCard({ title, value, subtitle, status, highlight =
     <div
       className={`rounded-xl p-5 flex flex-col gap-1 ${
         highlight
-          ? "bg-gradient-to-br from-slate-50 to-white border border-slate-200 shadow-sm"
+          ? "bg-linear-to-br from-slate-50 to-white border border-slate-200 shadow-sm"
           : "bg-white border border-gray-100"
       }`}
     >
