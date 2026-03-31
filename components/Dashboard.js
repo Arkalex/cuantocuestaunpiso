@@ -5,12 +5,17 @@ import MetricCard from "./MetricCard";
 import PriceChart from "./PriceChart";
 import RegionTable from "./RegionTable";
 import LocationSelector from "./LocationSelector";
+import CostBreakdown from "./CostBreakdown";
+import AffordabilityTimeline from "./AffordabilityTimeline";
 import {
   calculateMetrics,
   SURFACE_SQM,
   AFFORDABILITY_OK_THRESHOLD,
   AFFORDABILITY_WARNING_THRESHOLD,
-} from "@/lib/calculateMetrics";
+  LOAN_TERM_MONTHS,
+  ANNUAL_INTEREST_RATE,
+  LTV_RATIO,
+ } from "@/lib/calculateMetrics";
 
 const REGIONS = {
   Andalucía: { pricePerSqm: 1540, avgSalary: 22000 },
@@ -45,8 +50,15 @@ export default function Dashboard() {
   const [errorChart, setErrorChart] = useState(false);
   const [provinciasData, setProvinciasData] = useState({});
   const [municipiosData, setMunicipiosData] = useState({});
+  const [expandedSection, setExpandedSection] = useState(null);
   const [loadingLocation, setLoadingLocation] = useState(true);
   const [errorLocation, setErrorLocation] = useState(false);
+  
+  // Personalization parameters
+  const [surfaceM2, setSurfaceM2] = useState(SURFACE_SQM);
+  const [yearsHypotheca, setYearsHypotheca] = useState(LOAN_TERM_MONTHS / 12);
+  const [interestRate, setInterestRate] = useState(ANNUAL_INTEREST_RATE * 100);
+  const [downPaymentPct, setDownPaymentPct] = useState(100 - LTV_RATIO * 100);
 
   useEffect(() => {
     fetch("/api/ine")
@@ -82,13 +94,46 @@ export default function Dashboard() {
   })();
 
   const locationLabel = municipio || provincia || ccaa;
-  const metrics = calculateMetrics(activePricePerSqm, salary, type);
+  
+  // Métricas únicas con valores personalizados
+  const metrics = calculateMetrics(activePricePerSqm, salary, type, surfaceM2, yearsHypotheca, interestRate, downPaymentPct);
+  
   const barColor =
     metrics.salaryPct > AFFORDABILITY_WARNING_THRESHOLD
       ? "#f87171"
       : metrics.salaryPct > AFFORDABILITY_OK_THRESHOLD
         ? "#fbbf24"
         : "#34d399";
+
+  const viabilityScore = Math.max(0, Math.min(100, 100 - metrics.salaryPct));
+  const viabilityStatus = viabilityScore >= 70 ? "ok" : viabilityScore >= 40 ? "warning" : "danger";
+  const effortYears = Number(metrics.yearsOfSalary).toLocaleString("es-ES", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+  const formattedInterestRate = interestRate.toLocaleString("es-ES", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  // Keep the roadmap total aligned with the detailed breakdown (same rounding by concept)
+  const downPaymentRounded = Math.round(metrics.totalPrice * (downPaymentPct / 100));
+  const initialCostsBreakdown =
+    Math.round(metrics.totalPrice * 0.07) +
+    Math.round(metrics.totalPrice * 0.008) +
+    Math.round(metrics.totalPrice * 0.005) +
+    Math.round(metrics.totalPrice * 0.002);
+  const totalInitialNeededForTimeline = Math.max(
+    0,
+    downPaymentRounded + initialCostsBreakdown,
+  );
+
+  const handleResetAdvancedFilters = () => {
+    setSurfaceM2(SURFACE_SQM);
+    setYearsHypotheca(LOAN_TERM_MONTHS / 12);
+    setInterestRate(ANNUAL_INTEREST_RATE * 100);
+    setDownPaymentPct(100 - LTV_RATIO * 100);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
@@ -165,6 +210,107 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Finanación - Controles integrados */}
+      <div className="bg-white border border-gray-100 rounded-2xl p-6 mb-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-medium text-gray-900">Personaliza tu búsqueda</h3>
+          <button
+            type="button"
+            onClick={handleResetAdvancedFilters}
+            className="text-xs font-medium text-gray-600 hover:text-gray-900 border border-gray-200 hover:border-gray-300 bg-white rounded-lg px-3 py-1.5 transition-colors"
+          >
+            Resetear filtros
+          </button>
+        </div>
+        
+        {/* Grid de 4 sliders */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Superficie */}
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between items-baseline">
+              <label className="text-sm font-medium text-gray-600">Superficie m²</label>
+              <span className="text-2xl font-medium text-gray-900">{surfaceM2}</span>
+            </div>
+            <input
+              type="range"
+              min="30"
+              max="150"
+              step="1"
+              value={surfaceM2}
+              onChange={(e) => setSurfaceM2(Number(e.target.value))}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <div className="flex justify-between text-xs text-gray-400">
+              <span>30 m²</span>
+              <span>150 m²</span>
+            </div>
+          </div>
+
+          {/* Años hipoteca */}
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between items-baseline">
+              <label className="text-sm font-medium text-gray-600">Plazo hipoteca</label>
+              <span className="text-2xl font-medium text-gray-900">{yearsHypotheca} años</span>
+            </div>
+            <input
+              type="range"
+              min="5"
+              max="40"
+              step="1"
+              value={yearsHypotheca}
+              onChange={(e) => setYearsHypotheca(Number(e.target.value))}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <div className="flex justify-between text-xs text-gray-400">
+              <span>5 años</span>
+              <span>40 años</span>
+            </div>
+          </div>
+
+          {/* Tasa de interés */}
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between items-baseline">
+              <label className="text-sm font-medium text-gray-600">Tasa de interés (TAE)</label>
+              <span className="text-2xl font-medium text-gray-900">{formattedInterestRate}%</span>
+            </div>
+            <input
+              type="range"
+              min="1.5"
+              max="6"
+              step="0.1"
+              value={interestRate}
+              onChange={(e) => setInterestRate(Number(e.target.value))}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <div className="flex justify-between text-xs text-gray-400">
+              <span>1.5%</span>
+              <span>6%</span>
+            </div>
+          </div>
+
+          {/* Entrada */}
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between items-baseline">
+              <label className="text-sm font-medium text-gray-600">% Entrada</label>
+              <span className="text-2xl font-medium text-gray-900">{downPaymentPct}%</span>
+            </div>
+            <input
+              type="range"
+              min="5"
+              max="50"
+              step="1"
+              value={downPaymentPct}
+              onChange={(e) => setDownPaymentPct(Number(e.target.value))}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <div className="flex justify-between text-xs text-gray-400">
+              <span>5%</span>
+              <span>50%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Resultado principal */}
       <div className="bg-white border border-gray-100 rounded-2xl p-6 mb-6">
         <div className="flex items-start justify-between mb-6">
@@ -185,7 +331,7 @@ export default function Dashboard() {
               className={`text-5xl font-medium ${
                 metrics.salaryPct > AFFORDABILITY_WARNING_THRESHOLD
                   ? "text-red-500"
-                  : metrics.salaryPct > AFFORDABILITY_OK_THRESHOLD
+                  : metrics.salaryPct > AFFORDABILITY_OK_THRESHOLD 
                     ? "text-amber-500"
                     : "text-green-500"
               }`}
@@ -229,27 +375,94 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Métricas secundarias */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+      {/* Métricas grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <MetricCard
           title="Cuota mensual"
           value={`${metrics.monthlyPayment.toLocaleString("es-ES")} €`}
-          subtitle="30 años · 3,5% TAE"
+          subtitle={`${yearsHypotheca} años · ${formattedInterestRate}%`}
         />
         <MetricCard
           title="Esfuerzo salarial"
-          value={`${metrics.yearsOfSalary} años`}
-          subtitle="para comprar 70 m²"
+          value={`${effortYears} años`}
+          subtitle={`para comprar ${surfaceM2} m²`}
+        />        
+        <MetricCard
+          title="Impacto salarial"
+          value={`${metrics.salaryPct}%`}
+          subtitle={metrics.salaryPct > AFFORDABILITY_WARNING_THRESHOLD ? "⚠️ Muy alto" : metrics.salaryPct > AFFORDABILITY_OK_THRESHOLD ? "⚠️ Alto" : "✓ Óptimo"}
         />
         <MetricCard
-          title="Precio total del piso"
-          value={`${(metrics.pricePerSqm * SURFACE_SQM).toLocaleString("es-ES")} €`}
-          subtitle="entrada mínima 20%"
+          title="Precio total"
+          value={`${Math.round(metrics.totalPrice).toLocaleString("es-ES")} €`}
+          subtitle={`${surfaceM2} m²`}
+        />
+        <MetricCard
+          title="Entrada"
+          value={`${Math.round(metrics.downPayment).toLocaleString("es-ES")} €`}
+          subtitle={`${downPaymentPct}% del precio`}
+        />
+        <MetricCard
+          title="Financiación"
+          value={`${Math.round(metrics.totalPrice - metrics.downPayment).toLocaleString("es-ES")} €`}
+          subtitle="A financiar"
+        />
+        <MetricCard
+          title="Intereses totales"
+          value={`${Math.round(metrics.monthlyPayment * yearsHypotheca * 12 - (metrics.totalPrice - metrics.downPayment)).toLocaleString("es-ES")} €`}
+          subtitle={`${yearsHypotheca} años`}
+        />
+        <MetricCard
+          title="Puntuación"
+          value={`${viabilityScore}`}
+          subtitle={viabilityScore >= 70 ? "Viabilidad alta" : viabilityScore >= 40 ? "Atención" : "Revisar escenario"}
+          status={viabilityStatus}
+          highlight
         />
       </div>
 
+      {/* Accordion: Detalles expandibles */}
+      <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden mb-6">
+        <button
+          onClick={() => setExpandedSection(expandedSection === "details" ? null : "details")}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        >
+          <h3 className="text-lg font-medium text-gray-900">Detalles y timeline</h3>
+          <span
+            className={`text-gray-400 transition-transform ${
+              expandedSection === "details" ? "rotate-180" : ""
+            }`}
+          >
+            ▼
+          </span>
+        </button>
+        
+        {expandedSection === "details" && (
+          <div className="border-t border-gray-100 px-6 py-6 space-y-6">
+            <CostBreakdown
+              pricePerSqm={metrics.pricePerSqm}
+              totalPrice={metrics.totalPrice}
+              monthlyPayment={metrics.monthlyPayment}
+              downPaymentPct={downPaymentPct}
+              yearsHypotheca={yearsHypotheca}
+              interestRate={interestRate}
+              salaryPct={metrics.salaryPct}
+              status={metrics.status}
+              status_label={metrics.label}
+            />
+            
+            <AffordabilityTimeline
+              totalInitialNeeded={totalInitialNeededForTimeline}
+              currentSalary={salary}
+              monthlyPayment={metrics.monthlyPayment}
+              currentSavings={20000}
+            />
+          </div>
+        )}
+      </div>
+
       {/* Gráfico y tabla en dos columnas en pantallas grandes */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
         <div className="lg:col-span-2 bg-white border border-gray-100 rounded-2xl p-5">
           <div className="flex justify-between items-center mb-4">
             <div>
