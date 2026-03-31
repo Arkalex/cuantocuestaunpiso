@@ -62,20 +62,27 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetch("/api/ine")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((json) => {
         if (json.chartData) setChartData(json.chartData);
       })
-      .catch((err) => console.error("Error fetching INE data:", err))
+      .catch(() => setErrorChart(true))
       .finally(() => setLoadingChart(false));
 
     fetch("/api/ministerio")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((json) => {
         if (json.provincias) setProvinciasData(json.provincias);
         if (json.municipios) setMunicipiosData(json.municipios);
       })
-      .catch((err) => console.error("Error fetching Ministerio data:", err));
+      .catch(() => setErrorLocation(true))
+      .finally(() => setLoadingLocation(false));
   }, []);
 
   const activePricePerSqm = (() => {
@@ -470,10 +477,16 @@ export default function Dashboard() {
               INE · IPV Base 2022
             </span>
           </div>
-          <PriceChart
-            data={loadingChart ? [] : chartData}
-            selectedRegion={ccaa}
-          />
+          {errorChart ? (
+            <p className="text-xs text-red-500 text-center py-8">
+              No se pudieron cargar los datos del INE. Inténtalo de nuevo más tarde.
+            </p>
+          ) : (
+            <PriceChart
+              data={loadingChart ? [] : chartData}
+              selectedRegion={ccaa}
+            />
+          )}
         </div>
 
         <div className="lg:col-span-1 bg-white border border-gray-100 rounded-2xl overflow-hidden">

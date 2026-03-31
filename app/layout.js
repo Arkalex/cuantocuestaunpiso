@@ -1,4 +1,5 @@
 import { Geist } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import Header from "@/components/Header";
 
@@ -10,9 +11,6 @@ export const metadata = {
     "Calcula si puedes permitirte comprar un piso en tu comunidad autónoma, provincia o municipio. Precio por m², cuota de hipoteca y esfuerzo salarial con datos oficiales del INE y Ministerio de Vivienda.",
   keywords:
     "puedo comprarme un piso, calculadora hipoteca españa, precio vivienda por comunidad, esfuerzo salarial vivienda, accesibilidad vivienda españa",
-  icons: {
-    icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏠</text></svg>",
-  },
   openGraph: {
     title: "¿Puedo comprarme un piso en España?",
     description:
@@ -62,6 +60,7 @@ export default function RootLayout({ children }) {
             }),
           }}
         />
+        <Analytics />
       </body>
     </html>
   );
