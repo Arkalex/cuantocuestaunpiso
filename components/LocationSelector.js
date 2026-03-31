@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo  } from "react";
 
 export default function LocationSelector({
   ccaa,
@@ -11,15 +11,23 @@ export default function LocationSelector({
   provincias,
   municipios,
 }) {
-  const provinciasFiltered = Object.entries(provincias)
-    .filter(([, v]) => v.ccaa === ccaa)
-    .map(([name]) => name)
-    .sort();
+  const provinciasFiltered = useMemo(
+    () =>
+      Object.entries(provincias)
+        .filter(([, v]) => v.ccaa === ccaa)
+        .map(([name]) => name)
+        .sort(),
+    [provincias, ccaa],
+  );
 
-  const municipiosFiltered = Object.entries(municipios)
-    .filter(([, v]) => v.provincia === provincia)
-    .map(([name]) => name)
-    .sort();
+  const municipiosFiltered = useMemo(
+    () =>
+      Object.entries(municipios)
+        .filter(([, v]) => v.provincia === provincia)
+        .map(([name]) => name)
+        .sort(),
+    [municipios, provincia],
+  );
 
   // Si solo hay una provincia, seleccionarla automáticamente
   useEffect(() => {
@@ -30,7 +38,7 @@ export default function LocationSelector({
       onProvinciaChange(provinciasFiltered[0]);
       onMunicipioChange("");
     }
-  }, [ccaa, provinciasFiltered.length]);
+  }, [provincia, provinciasFiltered, onProvinciaChange, onMunicipioChange]);
 
   return (
     <div className="flex flex-col gap-3">

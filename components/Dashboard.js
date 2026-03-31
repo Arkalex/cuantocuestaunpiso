@@ -7,6 +7,15 @@ import RegionTable from "./RegionTable";
 import LocationSelector from "./LocationSelector";
 import CostBreakdown from "./CostBreakdown";
 import AffordabilityTimeline from "./AffordabilityTimeline";
+import {
+  calculateMetrics,
+  SURFACE_SQM,
+  AFFORDABILITY_OK_THRESHOLD,
+  AFFORDABILITY_WARNING_THRESHOLD,
+  LOAN_TERM_MONTHS,
+  ANNUAL_INTEREST_RATE,
+  LTV_RATIO,
+ } from "@/lib/calculateMetrics";
 
 const REGIONS = {
   Andalucía: { pricePerSqm: 1540, avgSalary: 22000 },
@@ -30,52 +39,6 @@ const REGIONS = {
   Melilla: { pricePerSqm: 1050, avgSalary: 21500 },
 };
 
-function calculateMetrics(pricePerSqm, salary, type, surfaceM2 = 70, yearsHypotheca = 30, interestRate = 3.5, downPaymentPct = 20) {
-  const multiplier = type === "new" ? 1.18 : 1;
-  const finalPricePerSqm = Math.round(pricePerSqm * multiplier);
-  const totalPrice = finalPricePerSqm * surfaceM2;
-  const yearsOfSalary = (totalPrice / salary).toFixed(1);
-  
-  const downPayment = totalPrice * (downPaymentPct / 100);
-  const principal = totalPrice - downPayment;
-  
-  const monthlyRate = interestRate / 100 / 12;
-  const numPayments = yearsHypotheca * 12;
-  
-  const monthlyPayment = Math.round(
-    (principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments))) /
-      (Math.pow(1 + monthlyRate, numPayments) - 1),
-  );
-  
-  const netSalary = salary * 0.72;
-  const salaryPct = Math.round(((monthlyPayment * 12) / netSalary) * 100);
-
-  let status = "danger";
-  let label = "Inaccesible";
-  if (salaryPct <= 30) {
-    status = "ok";
-    label = "Accesible";
-  } else if (salaryPct <= 50) {
-    status = "warning";
-    label = "Difícil acceso";
-  }
-
-  return {
-    pricePerSqm: finalPricePerSqm,
-    yearsOfSalary,
-    monthlyPayment,
-    salaryPct,
-    status,
-    label,
-    totalPrice,
-    downPayment,
-    surfaceM2,
-    yearsHypotheca,
-    interestRate,
-    downPaymentPct,
-  };
-}
-
 export default function Dashboard() {
   const [ccaa, setCcaa] = useState("Madrid");
   const [provincia, setProvincia] = useState("");
@@ -84,15 +47,18 @@ export default function Dashboard() {
   const [type, setType] = useState("resale");
   const [chartData, setChartData] = useState([]);
   const [loadingChart, setLoadingChart] = useState(true);
+  const [errorChart, setErrorChart] = useState(false);
   const [provinciasData, setProvinciasData] = useState({});
   const [municipiosData, setMunicipiosData] = useState({});
   const [expandedSection, setExpandedSection] = useState(null);
+  const [loadingLocation, setLoadingLocation] = useState(true);
+  const [errorLocation, setErrorLocation] = useState(false);
   
   // Personalization parameters
-  const [surfaceM2, setSurfaceM2] = useState(70);
-  const [yearsHypotheca, setYearsHypotheca] = useState(30);
-  const [interestRate, setInterestRate] = useState(3.5);
-  const [downPaymentPct, setDownPaymentPct] = useState(20);
+  const [surfaceM2, setSurfaceM2] = useState(SURFACE_SQM);
+  const [yearsHypotheca, setYearsHypotheca] = useState(LOAN_TERM_MONTHS / 12);
+  const [interestRate, setInterestRate] = useState(ANNUAL_INTEREST_RATE * 100);
+  const [downPaymentPct, setDownPaymentPct] = useState(100 - LTV_RATIO * 100);
 
   useEffect(() => {
     fetch("/api/ine")
@@ -126,9 +92,9 @@ export default function Dashboard() {
   const metrics = calculateMetrics(activePricePerSqm, salary, type, surfaceM2, yearsHypotheca, interestRate, downPaymentPct);
   
   const barColor =
-    metrics.salaryPct > 50
+    metrics.salaryPct > AFFORDABILITY_WARNING_THRESHOLD
       ? "#f87171"
-      : metrics.salaryPct > 30
+      : metrics.salaryPct > AFFORDABILITY_OK_THRESHOLD
         ? "#fbbf24"
         : "#34d399";
 
@@ -156,10 +122,10 @@ export default function Dashboard() {
   );
 
   const handleResetAdvancedFilters = () => {
-    setSurfaceM2(70);
-    setYearsHypotheca(30);
-    setInterestRate(3.5);
-    setDownPaymentPct(20);
+    setSurfaceM2(SURFACE_SQM);
+    setYearsHypotheca(LOAN_TERM_MONTHS / 12);
+    setInterestRate(ANNUAL_INTEREST_RATE * 100);
+    setDownPaymentPct(100 - LTV_RATIO * 100);
   };
 
   return (
@@ -177,17 +143,27 @@ export default function Dashboard() {
 
       {/* Controles */}
       <div className="bg-white border border-gray-100 rounded-2xl p-5 mb-6 grid grid-cols-1 md:grid-cols-3 gap-5">
-        <LocationSelector
-          ccaa={ccaa}
-          provincia={provincia}
-          municipio={municipio}
-          onCcaaChange={setCcaa}
-          onProvinciaChange={setProvincia}
-          onMunicipioChange={setMunicipio}
-          ccaaList={Object.keys(REGIONS)}
-          provincias={provinciasData}
-          municipios={municipiosData}
-        />
+        <div>
+          <LocationSelector
+            ccaa={ccaa}
+            provincia={provincia}
+            municipio={municipio}
+            onCcaaChange={setCcaa}
+            onProvinciaChange={setProvincia}
+            onMunicipioChange={setMunicipio}
+            ccaaList={Object.keys(REGIONS)}
+            provincias={provinciasData}
+            municipios={municipiosData}
+          />
+          {loadingLocation && !errorLocation && (
+            <p className="text-xs text-gray-400 mt-2">Cargando provincias...</p>
+          )}
+          {errorLocation && (
+            <p className="text-xs text-red-500 mt-2">
+              No se pudieron cargar los datos de provincias y municipios.
+            </p>
+          )}
+        </div>
         <div className="flex flex-col justify-center gap-2">
           <label className="text-xs text-gray-400">Salario bruto anual</label>
           <p className="text-2xl font-medium text-gray-900">
@@ -346,9 +322,9 @@ export default function Dashboard() {
             <p className="text-xs text-gray-400 mb-1">% salario en hipoteca</p>
             <p
               className={`text-5xl font-medium ${
-                metrics.salaryPct > 50
+                metrics.salaryPct > AFFORDABILITY_WARNING_THRESHOLD
                   ? "text-red-500"
-                  : metrics.salaryPct > 30
+                  : metrics.salaryPct > AFFORDABILITY_OK_THRESHOLD 
                     ? "text-amber-500"
                     : "text-green-500"
               }`}
@@ -357,9 +333,9 @@ export default function Dashboard() {
             </p>
             <span
               className={`text-xs font-medium px-2 py-1 rounded-full inline-block mt-1 ${
-                metrics.salaryPct > 50
+                metrics.salaryPct > AFFORDABILITY_WARNING_THRESHOLD
                   ? "bg-red-50 text-red-600"
-                  : metrics.salaryPct > 30
+                  : metrics.salaryPct > AFFORDABILITY_OK_THRESHOLD
                     ? "bg-amber-50 text-amber-600"
                     : "bg-green-50 text-green-600"
               }`}
@@ -407,7 +383,7 @@ export default function Dashboard() {
         <MetricCard
           title="Impacto salarial"
           value={`${metrics.salaryPct}%`}
-          subtitle={metrics.salaryPct > 50 ? "⚠️ Muy alto" : metrics.salaryPct > 30 ? "⚠️ Alto" : "✓ Óptimo"}
+          subtitle={metrics.salaryPct > AFFORDABILITY_WARNING_THRESHOLD ? "⚠️ Muy alto" : metrics.salaryPct > AFFORDABILITY_OK_THRESHOLD ? "⚠️ Alto" : "✓ Óptimo"}
         />
         <MetricCard
           title="Precio total"
