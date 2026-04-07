@@ -6,6 +6,13 @@ import os
 PROVINCIAS_URL = "https://apps.fomento.gob.es/boletinonline2/sedal/35101000.XLS"
 MUNICIPIOS_URL = "https://apps.fomento.gob.es/boletinonline2/sedal/35103500.XLS"
 
+# API del INE — Encuesta Anual de Estructura Salarial, tabla 28191
+# Medias y percentiles por sexo y CCAA
+INE_SALARIOS_URL = (
+    "https://servicios.ine.es/wstempus/js/ES/DATOS_TABLA/28191"
+    "?tip=AM&date=20150101:20301231"
+)
+
 CCAA_NAMES = {
     'Andalucía', 'Aragón', 'Canarias', 'Cantabria',
     'Castilla y León', 'Castilla-La Mancha', 'Cataluña',
@@ -65,16 +72,59 @@ MUNICIPIOS_PROVINCIA_OVERRIDE = {
     'Illescas': 'Toledo',                  # aparece bajo Guadalajara en el Excel
 }
 
+# Mapa de nombres del INE → nombres normalizados usados en el proyecto
+# La EAES no incluye Ceuta ni Melilla por separado
+INE_CCAA_MAP = {
+    'Andalucía': 'Andalucía',
+    'Aragón': 'Aragón',
+    'Asturias, Principado de': 'Asturias',
+    'Balears, Illes': 'Baleares',
+    'Canarias': 'Canarias',
+    'Cantabria': 'Cantabria',
+    'Castilla y León': 'Castilla y León',
+    'Castilla - La Mancha': 'Castilla-La Mancha',
+    'Cataluña': 'Cataluña',
+    'Comunitat Valenciana': 'C. Valenciana',
+    'Extremadura': 'Extremadura',
+    'Galicia': 'Galicia',
+    'Madrid, Comunidad de': 'Madrid',
+    'Murcia, Región de': 'Murcia',
+    'Navarra, Comunidad Foral de': 'Navarra',
+    'País Vasco': 'País Vasco',
+    'Rioja, La': 'La Rioja',
+}
+
+# Salario medio nacional de la EAES — usado como fallback para Ceuta y Melilla
+CCAA_SIN_DATOS_EAES = {'Ceuta', 'Melilla'}
+
 def download_excel(url):
     print(f"Descargando {url}...")
     response = requests.get(url, timeout=30)
     response.raise_for_status()
     return response.content
 
+def parse_quarter_label(sheet_name):
+    """
+    Convierte el nombre de hoja del Ministerio al formato 'T4 2025'.
+    Ejemplos de entrada: 'T4A2025', '4T 2024', 'T4 2025', '4T2025'.
+    Devuelve el string original si no se reconoce el formato.
+    """
+    import re
+    # Formatos conocidos: T4A2025, T4 2025, 4T 2024, 4T2025
+    m = re.match(r'[Tt]([1-4])[Aa\s]?(\d{4})', sheet_name.strip())
+    if m:
+        return f"T{m.group(1)} {m.group(2)}"
+    m = re.match(r'([1-4])[Tt]\s?(\d{4})', sheet_name.strip())
+    if m:
+        return f"T{m.group(1)} {m.group(2)}"
+    return sheet_name.strip()
+
+
 def process_provincias(content):
     wb = xlrd.open_workbook(file_contents=content)
     ws = wb.sheet_by_index(wb.nsheets - 1)
-    print(f"Hoja de provincias: {wb.sheet_names()[-1]}")
+    sheet_name = wb.sheet_names()[-1]
+    print(f"Hoja de provincias: {sheet_name}")
 
     last_col = 2
     for j in range(2, ws.ncols):
@@ -113,14 +163,22 @@ def process_provincias(content):
                     'ccaa': ccaa
                 }
 
-    return provincias
+    # Extraer el trimestre de referencia del nombre de la hoja
+    # El Ministerio nombra las hojas como "4T 2024", "1T 2025", etc.
+    data_quarter = sheet_name.strip()
+
+    return provincias, data_quarter
 
 def process_municipios(content):
     wb = xlrd.open_workbook(file_contents=content)
     municipios = {}
 
     ws = wb.sheet_by_index(wb.nsheets - 1)
-    print(f"\nHoja de municipios: {wb.sheet_names()[-1]}")
+    sheet_name = wb.sheet_names()[-1]
+    # El nombre de la hoja del Excel de municipios indica el trimestre exacto
+    # (ej. "T4A2025"). Lo parseamos a formato legible "T4 2025".
+    data_quarter = parse_quarter_label(sheet_name)
+    print(f"\nHoja de municipios: {sheet_name} → trimestre: {data_quarter}")
 
     header_row_idx = None
     for i in range(ws.nrows):
@@ -131,7 +189,7 @@ def process_municipios(content):
 
     if header_row_idx is None:
         print("No se encontró cabecera")
-        return municipios
+        return municipios, data_quarter
 
     header = [str(ws.cell_value(header_row_idx, j)).strip() for j in range(ws.ncols)]
     prov_col = next((j for j, h in enumerate(header) if h == 'Provincia'), None)
@@ -140,7 +198,7 @@ def process_municipios(content):
 
     if None in (prov_col, mun_col, val_col):
         print(f"Columnas no encontradas: prov={prov_col} mun={mun_col} val={val_col}")
-        return municipios
+        return municipios, data_quarter
 
     current_provincia = None
     for i in range(header_row_idx + 2, ws.nrows):
@@ -169,14 +227,79 @@ def process_municipios(content):
             'ccaa': ccaa
         }
 
-    return municipios
+    return municipios, data_quarter
+
+def fetch_salarios_ine():
+    """
+    Descarga salarios medios brutos anuales por CCAA desde la API del INE.
+    Tabla 28191 — EAES: Medias y percentiles por sexo y CCAA.
+    Filtra las series de ambos sexos, tipo de dato base y media.
+    Devuelve un dict { ccaa_normalizada: salario_medio_euros }.
+    """
+    print(f"\nDescargando salarios del INE: {INE_SALARIOS_URL}")
+    response = requests.get(INE_SALARIOS_URL, timeout=30)
+    response.raise_for_status()
+    data = response.json()
+
+    salarios = {}
+    salario_nacional = None
+
+    for serie in data:
+        meta = serie.get('MetaData', [])
+
+        # Filtrar: ambos sexos + tipo dato base + medida media
+        es_ambos_sexos = any(m['T3_Variable'] == 'Sexo' and m['Nombre'] == 'Ambos sexos' for m in meta)
+        es_dato_base = any(m['T3_Variable'] == 'Tipo de dato' and m['Nombre'] == 'Dato base' for m in meta)
+        es_media = any(m['T3_Variable'] == 'Medidas estadísticas' and m['Nombre'] == 'Media' for m in meta)
+
+        if not (es_ambos_sexos and es_dato_base and es_media):
+            continue
+
+        # Obtener el nombre de la CCAA o Nacional
+        ccaa_meta = next(
+            (m for m in meta if m['T3_Variable'] == 'Comunidades y Ciudades Autónomas'),
+            None
+        )
+        nacional_meta = next(
+            (m for m in meta if m['T3_Variable'] == 'Total Nacional'),
+            None
+        )
+
+        # Obtener el valor más reciente (mayor año)
+        datos = [d for d in serie.get('Data', []) if d.get('Valor') is not None]
+        if not datos:
+            continue
+        dato_reciente = max(datos, key=lambda d: d['Anyo'])
+        valor = round(dato_reciente['Valor'])
+        anyo = dato_reciente['Anyo']
+
+        if nacional_meta:
+            salario_nacional = valor
+            print(f"  Nacional ({anyo}): {valor} €")
+            continue
+
+        if ccaa_meta:
+            nombre_ine = ccaa_meta['Nombre']
+            nombre_norm = INE_CCAA_MAP.get(nombre_ine)
+            if nombre_norm:
+                salarios[nombre_norm] = valor
+                print(f"  {nombre_norm} ({anyo}): {valor} €")
+
+    # Ceuta y Melilla no tienen datos en la EAES: usar el salario nacional como fallback
+    if salario_nacional:
+        for ccaa in CCAA_SIN_DATOS_EAES:
+            salarios[ccaa] = salario_nacional
+            print(f"  {ccaa} (fallback nacional): {salario_nacional} €")
+
+    return salarios
+
 
 if __name__ == "__main__":
     output_dir = os.path.join(os.path.dirname(__file__), '..', 'public', 'data')
     os.makedirs(output_dir, exist_ok=True)
 
     prov_content = download_excel(PROVINCIAS_URL)
-    provincias = process_provincias(prov_content)
+    provincias, _ = process_provincias(prov_content)
     print(f"\nProvincias encontradas: {len(provincias)}")
 
     with open(os.path.join(output_dir, 'provincias.json'), 'w', encoding='utf-8') as f:
@@ -184,17 +307,31 @@ if __name__ == "__main__":
     print(f"Guardado en public/data/provincias.json")
 
     mun_content = download_excel(MUNICIPIOS_URL)
-    municipios = process_municipios(mun_content)
+    municipios, data_quarter = process_municipios(mun_content)
     print(f"\nMunicipios encontrados: {len(municipios)}")
+    print(f"Trimestre de referencia: {data_quarter}")
 
     # Verificar correcciones aplicadas
     print("\nVerificando correcciones:")
-    for mun in MUNICIPIOS_PROVINCIA_OVERRIDE:
-        if mun in municipios:
-            print(f"  {mun} → provincia: {municipios[mun]['provincia']} ✓")
+    for mun_name in MUNICIPIOS_PROVINCIA_OVERRIDE:
+        if mun_name in municipios:
+            print(f"  {mun_name} → provincia: {municipios[mun_name]['provincia']} ✓")
 
     with open(os.path.join(output_dir, 'municipios.json'), 'w', encoding='utf-8') as f:
         json.dump(municipios, f, ensure_ascii=False, indent=2)
     print(f"Guardado en public/data/municipios.json")
+
+    # Salarios del INE
+    salarios = fetch_salarios_ine()
+    print(f"\nCCAA con salario encontradas: {len(salarios)}")
+
+    salarios_output = {
+        'salarios': salarios,
+        'dataQuarter': data_quarter,
+    }
+
+    with open(os.path.join(output_dir, 'salarios.json'), 'w', encoding='utf-8') as f:
+        json.dump(salarios_output, f, ensure_ascii=False, indent=2)
+    print(f"Guardado en public/data/salarios.json")
 
     print("\nHecho.")

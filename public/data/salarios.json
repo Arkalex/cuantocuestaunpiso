@@ -1,0 +1,24 @@
+{
+  "salarios": {
+    "Andalucía": 25052,
+    "Aragón": 26822,
+    "Asturias": 27917,
+    "Baleares": 27537,
+    "Canarias": 24034,
+    "Cantabria": 26569,
+    "Castilla y León": 25227,
+    "Castilla-La Mancha": 24886,
+    "Cataluña": 29979,
+    "C. Valenciana": 25632,
+    "Extremadura": 23684,
+    "Galicia": 25279,
+    "Madrid": 32220,
+    "Murcia": 25330,
+    "Navarra": 31200,
+    "País Vasco": 33505,
+    "La Rioja": 26319,
+    "Ceuta": 28050,
+    "Melilla": 28050
+  },
+  "dataQuarter": "T4 2025"
+}

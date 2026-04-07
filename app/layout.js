@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 const geist = Geist({ subsets: ["latin"] });
 
 export const metadata = {
+  metadataBase: new URL("https://www.cuantocuestaunpiso.es"),
   title: "¿Puedo comprarme un piso en España? Calculadora con datos del INE",
   description:
     "Calcula si puedes permitirte comprar un piso en tu comunidad autónoma, provincia o municipio. Precio por m², cuota de hipoteca y esfuerzo salarial con datos oficiales del INE y Ministerio de Vivienda.",

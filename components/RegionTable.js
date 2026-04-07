@@ -1,18 +1,23 @@
+import {
+  NEW_BUILD_MULTIPLIER,
+  SURFACE_SQM,
+} from "@/lib/calculateMetrics";
+
 export default function RegionTable({
   regions,
   selectedRegion,
   onSelect,
   type,
 }) {
-  const multiplier = type === "new" ? 1.18 : 1;
+  const multiplier = type === "new" ? NEW_BUILD_MULTIPLIER : 1;
 
   const rows = Object.entries(regions)
     .map(([name, data]) => ({
       name,
       pricePerSqm: Math.round(data.pricePerSqm * multiplier),
-      totalPrice: Math.round(data.pricePerSqm * multiplier * 70),
+      totalPrice: Math.round(data.pricePerSqm * multiplier * SURFACE_SQM),
       yearsOfSalary: (
-        (data.pricePerSqm * multiplier * 70) /
+        (data.pricePerSqm * multiplier * SURFACE_SQM) /
         data.avgSalary
       ).toFixed(1),
     }))

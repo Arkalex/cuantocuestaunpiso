@@ -57,8 +57,9 @@ function rebaseToQ1_2022(chartData) {
 
 export async function GET() {
   try {
+    const endYear = new Date().getFullYear() + 1;
     const res = await fetch(
-      `${BASE}/DATOS_TABLA/25171?tip=AM&date=20220101:20251231`,
+      `${BASE}/DATOS_TABLA/25171?tip=AM&date=20220101:${endYear}1231`,
       { next: { revalidate: 86400 } },
     );
     if (!res.ok) throw new Error(`INE responded with status ${res.status}`);

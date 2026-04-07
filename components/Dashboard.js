@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import MetricCard from "./MetricCard";
 import PriceChart from "./PriceChart";
 import RegionTable from "./RegionTable";
@@ -12,42 +13,107 @@ import {
   AFFORDABILITY_WARNING_THRESHOLD,
 } from "@/lib/calculateMetrics";
 
-const REGIONS = {
-  Andalucía: { pricePerSqm: 1540, avgSalary: 22000 },
-  Aragón: { pricePerSqm: 1680, avgSalary: 25000 },
-  Asturias: { pricePerSqm: 1420, avgSalary: 24000 },
-  Baleares: { pricePerSqm: 4100, avgSalary: 26000 },
-  Canarias: { pricePerSqm: 2100, avgSalary: 23000 },
-  Cantabria: { pricePerSqm: 1780, avgSalary: 24500 },
-  "Castilla-La Mancha": { pricePerSqm: 980, avgSalary: 21000 },
-  "Castilla y León": { pricePerSqm: 1150, avgSalary: 22500 },
-  Cataluña: { pricePerSqm: 2980, avgSalary: 29500 },
-  "C. Valenciana": { pricePerSqm: 1820, avgSalary: 24000 },
-  Extremadura: { pricePerSqm: 890, avgSalary: 19500 },
-  Galicia: { pricePerSqm: 1320, avgSalary: 23000 },
-  "La Rioja": { pricePerSqm: 1240, avgSalary: 24000 },
-  Madrid: { pricePerSqm: 3210, avgSalary: 32000 },
-  Murcia: { pricePerSqm: 1180, avgSalary: 21500 },
-  Navarra: { pricePerSqm: 1950, avgSalary: 28000 },
-  "País Vasco": { pricePerSqm: 2760, avgSalary: 34000 },
-  Ceuta: { pricePerSqm: 1100, avgSalary: 22000 },
-  Melilla: { pricePerSqm: 1050, avgSalary: 21500 },
+// Lista canónica de CCAA — solo se usa para el selector de LocationSelector
+// Los precios se calculan dinámicamente desde provinciasData (Ministerio)
+// y los salarios vienen del INE via salarios.json
+const CCAA_LIST = [
+  "Andalucía",
+  "Aragón",
+  "Asturias",
+  "Baleares",
+  "Canarias",
+  "Cantabria",
+  "Castilla-La Mancha",
+  "Castilla y León",
+  "Cataluña",
+  "C. Valenciana",
+  "Extremadura",
+  "Galicia",
+  "La Rioja",
+  "Madrid",
+  "Murcia",
+  "Navarra",
+  "País Vasco",
+  "Ceuta",
+  "Melilla",
+];
+
+// Precio de fallback por CCAA si los datos del Ministerio no están disponibles todavía
+// Solo se usa durante la carga inicial o si el fetch falla
+const FALLBACK_PRICES = {
+  Andalucía: 1540,
+  Aragón: 1680,
+  Asturias: 1420,
+  Baleares: 4100,
+  Canarias: 2100,
+  Cantabria: 1780,
+  "Castilla-La Mancha": 980,
+  "Castilla y León": 1150,
+  Cataluña: 2980,
+  "C. Valenciana": 1820,
+  Extremadura: 890,
+  Galicia: 1320,
+  "La Rioja": 1240,
+  Madrid: 3210,
+  Murcia: 1180,
+  Navarra: 1950,
+  "País Vasco": 2760,
+  Ceuta: 1100,
+  Melilla: 1050,
 };
 
-export default function Dashboard() {
-  const [ccaa, setCcaa] = useState("Madrid");
-  const [provincia, setProvincia] = useState("");
-  const [municipio, setMunicipio] = useState("");
-  const [salary, setSalary] = useState(28000);
-  const [type, setType] = useState("resale");
+const MIN_SALARY = 12000;
+const MAX_SALARY = 150000;
+const SALARY_STEP = 500;
+
+function DashboardInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // --- Inicializar estado desde URL params ---
+  const initialCcaa = (() => {
+    const p = searchParams.get("ccaa");
+    return p && CCAA_LIST.includes(p) ? p : "Madrid";
+  })();
+  const initialSalary = (() => {
+    const p = Number(searchParams.get("salary"));
+    return p >= MIN_SALARY && p <= MAX_SALARY ? p : 28000;
+  })();
+  const initialType = (() => {
+    const p = searchParams.get("type");
+    return p === "new" || p === "resale" ? p : "resale";
+  })();
+
+  const [ccaa, setCcaa] = useState(initialCcaa);
+  const [provincia, setProvincia] = useState(searchParams.get("provincia") ?? "");
+  const [municipio, setMunicipio] = useState(searchParams.get("municipio") ?? "");
+  const [salary, setSalary] = useState(initialSalary);
+  const [salaryInput, setSalaryInput] = useState(String(initialSalary));
+  const [type, setType] = useState(initialType);
+
   const [chartData, setChartData] = useState([]);
   const [loadingChart, setLoadingChart] = useState(true);
   const [errorChart, setErrorChart] = useState(false);
+
   const [provinciasData, setProvinciasData] = useState({});
   const [municipiosData, setMunicipiosData] = useState({});
+  const [salariosData, setSalariosData] = useState({});
+  const [dataQuarter, setDataQuarter] = useState(null);
   const [loadingLocation, setLoadingLocation] = useState(true);
   const [errorLocation, setErrorLocation] = useState(false);
 
+  // --- Sincronizar URL params cuando cambia el estado ---
+  useEffect(() => {
+    const params = new URLSearchParams();
+    params.set("ccaa", ccaa);
+    if (provincia) params.set("provincia", provincia);
+    if (municipio) params.set("municipio", municipio);
+    params.set("salary", String(salary));
+    params.set("type", type);
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [ccaa, provincia, municipio, salary, type, router]);
+
+  // --- Fetch de datos (una sola vez al montar) ---
   useEffect(() => {
     fetch("/api/ine")
       .then((res) => {
@@ -68,17 +134,50 @@ export default function Dashboard() {
       .then((json) => {
         if (json.provincias) setProvinciasData(json.provincias);
         if (json.municipios) setMunicipiosData(json.municipios);
+        if (json.salarios) setSalariosData(json.salarios);
+        if (json.dataQuarter) setDataQuarter(json.dataQuarter);
       })
       .catch(() => setErrorLocation(true))
       .finally(() => setLoadingLocation(false));
   }, []);
 
+  // --- Precios de CCAA calculados dinámicamente desde provinciasData ---
+  // Promedio de las provincias de cada CCAA. Actualiza automáticamente
+  // cuando los datos del Ministerio se cargan o cambian.
+  const ccaaPriceMap = useMemo(() => {
+    if (Object.keys(provinciasData).length === 0) return {};
+    const acc = {};
+    Object.values(provinciasData).forEach(({ pricePerSqm, ccaa: pCcaa }) => {
+      if (!acc[pCcaa]) acc[pCcaa] = { sum: 0, count: 0 };
+      acc[pCcaa].sum += pricePerSqm;
+      acc[pCcaa].count++;
+    });
+    return Object.fromEntries(
+      Object.entries(acc).map(([k, v]) => [k, Math.round(v.sum / v.count)])
+    );
+  }, [provinciasData]);
+
+  // --- Objeto REGIONS combinando precios dinámicos + salarios del INE ---
+  // Se pasa a RegionTable para la tabla comparativa
+  const regions = useMemo(() => {
+    return Object.fromEntries(
+      CCAA_LIST.map((name) => [
+        name,
+        {
+          pricePerSqm: ccaaPriceMap[name] ?? FALLBACK_PRICES[name] ?? 1500,
+          avgSalary: salariosData[name] ?? 25000,
+        },
+      ])
+    );
+  }, [ccaaPriceMap, salariosData]);
+
+  // --- Precio activo (municipio > provincia > ccaa) ---
   const activePricePerSqm = (() => {
     if (municipio && municipiosData[municipio])
       return municipiosData[municipio].pricePerSqm;
     if (provincia && provinciasData[provincia])
       return provinciasData[provincia].pricePerSqm;
-    return REGIONS[ccaa]?.pricePerSqm ?? 1500;
+    return ccaaPriceMap[ccaa] ?? FALLBACK_PRICES[ccaa] ?? 1500;
   })();
 
   const locationLabel = municipio || provincia || ccaa;
@@ -89,6 +188,38 @@ export default function Dashboard() {
       : metrics.salaryPct > AFFORDABILITY_OK_THRESHOLD
         ? "#fbbf24"
         : "#34d399";
+
+  // --- Handlers estables para LocationSelector ---
+  const handleCcaaChange = useCallback((val) => { setCcaa(val); setProvincia(""); setMunicipio(""); }, []);
+  const handleProvinciaChange = useCallback((val) => { setProvincia(val); setMunicipio(""); }, []);
+  const handleMunicipioChange = useCallback(setMunicipio, []);
+
+  // --- Slider + input manual de salario ---
+  const handleSliderChange = (e) => {
+    const val = Number(e.target.value);
+    setSalary(val);
+    setSalaryInput(String(val));
+  };
+  const handleInputChange = (e) => {
+    setSalaryInput(e.target.value);
+    const val = Number(e.target.value.replace(/\./g, "").replace(",", "."));
+    if (!isNaN(val) && val >= MIN_SALARY && val <= MAX_SALARY) {
+      setSalary(val);
+    }
+  };
+  const handleInputBlur = () => {
+    const val = Number(salaryInput.replace(/\./g, "").replace(",", "."));
+    if (isNaN(val) || val < MIN_SALARY) {
+      setSalary(MIN_SALARY);
+      setSalaryInput(String(MIN_SALARY));
+    } else if (val > MAX_SALARY) {
+      setSalary(MAX_SALARY);
+      setSalaryInput(String(MAX_SALARY));
+    } else {
+      setSalary(val);
+      setSalaryInput(String(val));
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
@@ -110,10 +241,10 @@ export default function Dashboard() {
             ccaa={ccaa}
             provincia={provincia}
             municipio={municipio}
-            onCcaaChange={setCcaa}
-            onProvinciaChange={setProvincia}
-            onMunicipioChange={setMunicipio}
-            ccaaList={Object.keys(REGIONS)}
+            onCcaaChange={handleCcaaChange}
+            onProvinciaChange={handleProvinciaChange}
+            onMunicipioChange={handleMunicipioChange}
+            ccaaList={CCAA_LIST}
             provincias={provinciasData}
             municipios={municipiosData}
           />
@@ -126,25 +257,38 @@ export default function Dashboard() {
             </p>
           )}
         </div>
+
+        {/* Salario bruto: slider + input manual */}
         <div className="flex flex-col justify-center gap-2">
           <label className="text-xs text-gray-400">Salario bruto anual</label>
-          <p className="text-2xl font-medium text-gray-900">
-            {salary.toLocaleString("es-ES")} €
-          </p>
+          <div className="flex items-baseline gap-1">
+            <input
+              type="number"
+              min={MIN_SALARY}
+              max={MAX_SALARY}
+              step={SALARY_STEP}
+              value={salaryInput}
+              onChange={handleInputChange}
+              onBlur={handleInputBlur}
+              className="w-full text-2xl font-medium text-gray-900 bg-transparent border-b border-gray-200 focus:border-blue-400 focus:outline-none pb-0.5 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            />
+            <span className="text-2xl font-medium text-gray-900">€</span>
+          </div>
           <input
             type="range"
-            min="15000"
-            max="80000"
-            step="1000"
+            min={MIN_SALARY}
+            max={MAX_SALARY}
+            step={SALARY_STEP}
             value={salary}
-            onChange={(e) => setSalary(Number(e.target.value))}
+            onChange={handleSliderChange}
             className="w-full"
           />
           <div className="flex justify-between text-xs text-gray-300">
-            <span>15.000 €</span>
-            <span>80.000 €</span>
+            <span>{MIN_SALARY.toLocaleString("es-ES")} €</span>
+            <span>{MAX_SALARY.toLocaleString("es-ES")} €</span>
           </div>
         </div>
+
         <div className="flex flex-col justify-center gap-2">
           <label className="text-xs text-gray-400">Tipo de vivienda</label>
           <div className="flex gap-2">
@@ -177,6 +321,11 @@ export default function Dashboard() {
             </p>
             <p className="text-xs text-gray-300 mt-1">
               Fuente: Ministerio de Vivienda
+              {dataQuarter && (
+                <span className="ml-2 bg-gray-50 text-gray-400 px-1.5 py-0.5 rounded text-xs">
+                  {dataQuarter}
+                </span>
+              )}
             </p>
           </div>
           <div className="text-right">
@@ -285,7 +434,7 @@ export default function Dashboard() {
           </div>
           <div className="overflow-y-auto" style={{ maxHeight: "340px" }}>
             <RegionTable
-              regions={REGIONS}
+              regions={regions}
               selectedRegion={ccaa}
               onSelect={(r) => {
                 setCcaa(r);
@@ -298,5 +447,13 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <Suspense fallback={null}>
+      <DashboardInner />
+    </Suspense>
   );
 }
