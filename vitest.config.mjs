@@ -1,0 +1,20 @@
+import { defineConfig } from "vitest/config";
+import { resolve } from "path";
+import { fileURLToPath } from "url";
+import react from "@vitejs/plugin-react";
+
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["./vitest.setup.mjs"],
+  },
+  resolve: {
+    alias: {
+      "@": resolve(__dirname, "."),
+    },
+  },
+});

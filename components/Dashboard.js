@@ -131,6 +131,23 @@ function DashboardSkeleton() {
 }
 
 // ---------------------------------------------------------------------------
+// Error banner — se muestra cuando los datos del Ministerio fallan
+// ---------------------------------------------------------------------------
+function ErrorBanner({ message }) {
+  return (
+    <div role="alert" className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-6 flex items-start gap-3">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" className="text-red-500 mt-0.5 shrink-0" aria-hidden="true">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v4a1 1 0 102 0V7zm-1 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+      </svg>
+      <div>
+        <p className="text-sm font-medium text-red-700">Error al cargar los datos</p>
+        <p className="text-xs text-red-500 mt-0.5">{message}</p>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Dashboard principal
 // ---------------------------------------------------------------------------
 function DashboardInner() {
@@ -256,6 +273,9 @@ function DashboardInner() {
     ((avgSalaryForCcaa - MIN_SALARY) / (MAX_SALARY - MIN_SALARY)) * 100
   );
 
+  // Clamp avg salary label position so it never overflows on mobile
+  const clampedAvgPct = Math.min(Math.max(avgSalaryPct, 10), 88);
+
   // Stable callbacks for LocationSelector
   const handleCcaaChange = useCallback((val) => {
     setCcaa(val);
@@ -322,6 +342,13 @@ function DashboardInner() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
+      {/* Error banners */}
+      {errorLocation && (
+        <ErrorBanner message="No se pudieron cargar los datos de provincias, municipios y salarios. Los precios mostrados son orientativos." />
+      )}
+      {errorChart && (
+        <ErrorBanner message="No se pudieron cargar los datos del INE. El gráfico de evolución no está disponible." />
+      )}
       {/* Hero */}
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>
@@ -342,6 +369,7 @@ function DashboardInner() {
         {/* Share button */}
         <button
           onClick={handleShare}
+          aria-label="Copiar enlace con esta configuración"
           className="shrink-0 flex items-center gap-1.5 text-xs text-gray-500 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors"
           title="Copiar enlace con esta configuración"
         >
@@ -378,7 +406,7 @@ function DashboardInner() {
             municipios={municipiosData}
           />
           {loadingLocation && !errorLocation && (
-            <p className="text-xs text-gray-400 mt-2">Cargando provincias...</p>
+            <p className="text-xs text-gray-400 mt-2" aria-live="polite">Cargando provincias...</p>
           )}
           {errorLocation && (
             <p className="text-xs text-red-500 mt-2">
@@ -389,9 +417,10 @@ function DashboardInner() {
 
         {/* Salary: slider + manual input */}
         <div className="flex flex-col justify-center gap-2">
-          <label className="text-xs text-gray-400">Salario bruto anual</label>
+          <label htmlFor="salary-input" className="text-xs text-gray-400">Salario bruto anual</label>
           <div className="flex items-baseline gap-1">
             <input
+              id="salary-input"
               type="number"
               min={MIN_SALARY}
               max={MAX_SALARY}
@@ -399,9 +428,10 @@ function DashboardInner() {
               value={salaryInput}
               onChange={handleInputChange}
               onBlur={handleInputBlur}
+              aria-label="Salario bruto anual en euros"
               className="w-full text-2xl font-medium text-gray-900 bg-transparent border-b border-gray-200 focus:border-blue-400 focus:outline-none pb-0.5 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             />
-            <span className="text-2xl font-medium text-gray-900">€</span>
+            <span className="text-2xl font-medium text-gray-900" aria-hidden="true">€</span>
           </div>
           {/* Slider with avg salary marker */}
           <div className="relative">
@@ -412,36 +442,41 @@ function DashboardInner() {
               step={SALARY_STEP}
               value={salary}
               onChange={handleSliderChange}
+              aria-label="Salario bruto anual"
+              aria-valuetext={`${salary.toLocaleString("es-ES")} euros`}
               className="w-full"
             />
             {/* Avg salary tick */}
             <div
               className="absolute top-0 flex flex-col items-center pointer-events-none"
               style={{ left: `${avgSalaryPct}%`, transform: "translateX(-50%)" }}
+              aria-hidden="true"
             >
               <div className="w-px h-3 bg-blue-300 mt-1" />
             </div>
           </div>
           <div className="relative flex justify-between text-xs text-gray-300">
-            <span>{MIN_SALARY.toLocaleString("es-ES")} €</span>
-            {/* Avg salary label */}
+            <span aria-hidden="true">{MIN_SALARY.toLocaleString("es-ES")} €</span>
+            {/* Avg salary label — clamped so it never overflows on mobile */}
             <span
               className="absolute text-blue-300 whitespace-nowrap"
-              style={{ left: `${avgSalaryPct}%`, transform: "translateX(-50%)" }}
+              style={{ left: `${clampedAvgPct}%`, transform: "translateX(-50%)" }}
+              aria-hidden="true"
             >
               media {ccaa}
             </span>
-            <span>{MAX_SALARY.toLocaleString("es-ES")} €</span>
+            <span aria-hidden="true">{MAX_SALARY.toLocaleString("es-ES")} €</span>
           </div>
         </div>
 
         <div className="flex flex-col justify-center gap-2">
-          <label className="text-xs text-gray-400">Tipo de vivienda</label>
-          <div className="flex gap-2">
+          <label className="text-xs text-gray-400" id="type-label">Tipo de vivienda</label>
+          <div className="flex gap-2" role="group" aria-labelledby="type-label">
             {["resale", "new"].map((t) => (
               <button
                 key={t}
                 onClick={() => setType(t)}
+                aria-pressed={type === t}
                 className={`flex-1 text-sm py-2.5 rounded-xl border transition-colors ${
                   type === t
                     ? "bg-gray-900 border-gray-900 text-white font-medium"
@@ -575,9 +610,18 @@ function DashboardInner() {
             <p className="text-xs text-red-500 text-center py-8">
               No se pudieron cargar los datos del INE. Inténtalo de nuevo más tarde.
             </p>
+          ) : loadingChart ? (
+            <div className="animate-pulse space-y-2 pt-2">
+              <div className="h-48 bg-gray-100 rounded-lg" />
+              <div className="flex justify-between">
+                {[0,1,2,3,4].map((i) => (
+                  <div key={i} className="h-2.5 bg-gray-100 rounded w-10" />
+                ))}
+              </div>
+            </div>
           ) : (
             <PriceChart
-              data={loadingChart ? [] : chartData}
+              data={chartData}
               selectedRegion={ccaa}
             />
           )}
