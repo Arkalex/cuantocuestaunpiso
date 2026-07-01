@@ -1,210 +1,210 @@
 {
   "Almería": {
-    "pricePerSqm": 1388,
-    "ccaa": "Andalucía"
-  },
-  "Cádiz": {
-    "pricePerSqm": 1893,
-    "ccaa": "Andalucía"
-  },
-  "Córdoba": {
-    "pricePerSqm": 1243,
-    "ccaa": "Andalucía"
-  },
-  "Granada": {
-    "pricePerSqm": 1569,
-    "ccaa": "Andalucía"
-  },
-  "Huelva": {
     "pricePerSqm": 1454,
     "ccaa": "Andalucía"
   },
+  "Cádiz": {
+    "pricePerSqm": 1988,
+    "ccaa": "Andalucía"
+  },
+  "Córdoba": {
+    "pricePerSqm": 1286,
+    "ccaa": "Andalucía"
+  },
+  "Granada": {
+    "pricePerSqm": 1635,
+    "ccaa": "Andalucía"
+  },
+  "Huelva": {
+    "pricePerSqm": 1480,
+    "ccaa": "Andalucía"
+  },
   "Jaén": {
-    "pricePerSqm": 863,
+    "pricePerSqm": 898,
     "ccaa": "Andalucía"
   },
   "Málaga": {
-    "pricePerSqm": 2897,
+    "pricePerSqm": 2988,
     "ccaa": "Andalucía"
   },
   "Sevilla": {
-    "pricePerSqm": 1780,
+    "pricePerSqm": 1840,
     "ccaa": "Andalucía"
   },
   "Huesca": {
-    "pricePerSqm": 1402,
+    "pricePerSqm": 1481,
     "ccaa": "Aragón"
   },
   "Teruel": {
-    "pricePerSqm": 964,
+    "pricePerSqm": 1004,
     "ccaa": "Aragón"
   },
   "Zaragoza": {
-    "pricePerSqm": 1818,
+    "pricePerSqm": 1906,
     "ccaa": "Aragón"
   },
   "Asturias": {
-    "pricePerSqm": 1668,
+    "pricePerSqm": 1752,
     "ccaa": "Asturias"
   },
   "Baleares": {
-    "pricePerSqm": 3810,
+    "pricePerSqm": 3886,
     "ccaa": "Baleares"
   },
   "Palmas (Las)": {
-    "pricePerSqm": 2151,
+    "pricePerSqm": 2203,
     "ccaa": "Canarias"
   },
   "Santa Cruz de Tenerife": {
-    "pricePerSqm": 2141,
+    "pricePerSqm": 2265,
     "ccaa": "Canarias"
   },
   "Cantabria": {
-    "pricePerSqm": 1985,
+    "pricePerSqm": 2082,
     "ccaa": "Cantabria"
   },
   "Ávila": {
-    "pricePerSqm": 1088,
+    "pricePerSqm": 1094,
     "ccaa": "Castilla y León"
   },
   "Burgos": {
-    "pricePerSqm": 1371,
+    "pricePerSqm": 1424,
     "ccaa": "Castilla y León"
   },
   "León": {
-    "pricePerSqm": 990,
+    "pricePerSqm": 1047,
     "ccaa": "Castilla y León"
   },
   "Palencia": {
-    "pricePerSqm": 1013,
+    "pricePerSqm": 1056,
     "ccaa": "Castilla y León"
   },
   "Salamanca": {
-    "pricePerSqm": 1392,
+    "pricePerSqm": 1474,
     "ccaa": "Castilla y León"
   },
   "Segovia": {
-    "pricePerSqm": 1375,
+    "pricePerSqm": 1479,
     "ccaa": "Castilla y León"
   },
   "Soria": {
-    "pricePerSqm": 1083,
+    "pricePerSqm": 1104,
     "ccaa": "Castilla y León"
   },
   "Valladolid": {
-    "pricePerSqm": 1524,
+    "pricePerSqm": 1591,
     "ccaa": "Castilla y León"
   },
   "Zamora": {
-    "pricePerSqm": 900,
+    "pricePerSqm": 934,
     "ccaa": "Castilla y León"
   },
   "Albacete": {
-    "pricePerSqm": 1144,
+    "pricePerSqm": 1190,
     "ccaa": "Castilla-La Mancha"
   },
   "Ciudad Real": {
-    "pricePerSqm": 791,
+    "pricePerSqm": 828,
     "ccaa": "Castilla-La Mancha"
   },
   "Cuenca": {
-    "pricePerSqm": 898,
+    "pricePerSqm": 936,
     "ccaa": "Castilla-La Mancha"
   },
   "Guadalajara": {
-    "pricePerSqm": 1605,
+    "pricePerSqm": 1671,
     "ccaa": "Castilla-La Mancha"
   },
   "Toledo": {
-    "pricePerSqm": 1144,
+    "pricePerSqm": 1219,
     "ccaa": "Castilla-La Mancha"
   },
   "Barcelona": {
-    "pricePerSqm": 3083,
+    "pricePerSqm": 3208,
     "ccaa": "Cataluña"
   },
   "Girona": {
-    "pricePerSqm": 2083,
+    "pricePerSqm": 2153,
     "ccaa": "Cataluña"
   },
   "Lleida": {
-    "pricePerSqm": 1213,
+    "pricePerSqm": 1282,
     "ccaa": "Cataluña"
   },
   "Tarragona": {
-    "pricePerSqm": 1727,
+    "pricePerSqm": 1778,
     "ccaa": "Cataluña"
   },
   "Alicante/Alacant": {
-    "pricePerSqm": 1903,
+    "pricePerSqm": 1992,
     "ccaa": "C. Valenciana"
   },
   "Castellón/Castelló": {
-    "pricePerSqm": 1367,
+    "pricePerSqm": 1445,
     "ccaa": "C. Valenciana"
   },
   "Valencia/València": {
-    "pricePerSqm": 1832,
+    "pricePerSqm": 1931,
     "ccaa": "C. Valenciana"
   },
   "Badajoz": {
-    "pricePerSqm": 953,
+    "pricePerSqm": 988,
     "ccaa": "Extremadura"
   },
   "Cáceres": {
-    "pricePerSqm": 906,
+    "pricePerSqm": 947,
     "ccaa": "Extremadura"
   },
   "Coruña (A)": {
-    "pricePerSqm": 1632,
+    "pricePerSqm": 1711,
     "ccaa": "Galicia"
   },
   "Lugo": {
-    "pricePerSqm": 1101,
+    "pricePerSqm": 1146,
     "ccaa": "Galicia"
   },
   "Ourense": {
-    "pricePerSqm": 1063,
+    "pricePerSqm": 1110,
     "ccaa": "Galicia"
   },
   "Pontevedra": {
-    "pricePerSqm": 1702,
+    "pricePerSqm": 1784,
     "ccaa": "Galicia"
   },
   "Madrid": {
-    "pricePerSqm": 3902,
+    "pricePerSqm": 4048,
     "ccaa": "Madrid"
   },
   "Murcia": {
-    "pricePerSqm": 1264,
+    "pricePerSqm": 1330,
     "ccaa": "Murcia"
   },
   "Navarra": {
-    "pricePerSqm": 1852,
+    "pricePerSqm": 1934,
     "ccaa": "Navarra"
   },
   "Araba/Alava": {
-    "pricePerSqm": 2405,
+    "pricePerSqm": 2501,
     "ccaa": "País Vasco"
   },
   "Gipuzkoa": {
-    "pricePerSqm": 3363,
+    "pricePerSqm": 3420,
     "ccaa": "País Vasco"
   },
   "Bizkaia": {
-    "pricePerSqm": 2895,
+    "pricePerSqm": 2965,
     "ccaa": "País Vasco"
   },
   "La Rioja": {
-    "pricePerSqm": 1367,
+    "pricePerSqm": 1440,
     "ccaa": "La Rioja"
   },
   "Ceuta": {
-    "pricePerSqm": 2148,
+    "pricePerSqm": 2212,
     "ccaa": "Ceuta"
   },
   "Melilla": {
-    "pricePerSqm": 2082,
+    "pricePerSqm": 2123,
     "ccaa": "Melilla"
   }
 }

@@ -1,601 +1,476 @@
 {
   "Almería": {
-    "pricePerSqm": 2053,
+    "pricePerSqm": 2087,
     "provincia": "Almería",
     "ccaa": "Andalucía"
   },
   "Roquetas de Mar": {
-    "pricePerSqm": 1650,
+    "pricePerSqm": 1874,
     "provincia": "Almería",
     "ccaa": "Andalucía"
   },
   "Ejido (El)": {
-    "pricePerSqm": 1752,
+    "pricePerSqm": 1678,
     "provincia": "Almería",
     "ccaa": "Andalucía"
   },
-  "Arcos de la frontera": {
-    "pricePerSqm": 1388,
-    "provincia": "Cádiz",
-    "ccaa": "Andalucía"
-  },
   "Cádiz": {
-    "pricePerSqm": 3225,
+    "pricePerSqm": 3236,
     "provincia": "Cádiz",
     "ccaa": "Andalucía"
   },
   "Chiclana de la Frontera": {
-    "pricePerSqm": 2326,
+    "pricePerSqm": 2336,
     "provincia": "Cádiz",
     "ccaa": "Andalucía"
   },
   "Jerez de la Frontera": {
-    "pricePerSqm": 2254,
+    "pricePerSqm": 2097,
     "provincia": "Cádiz",
     "ccaa": "Andalucía"
   },
   "Puerto de Santa María": {
-    "pricePerSqm": 2074,
-    "provincia": "Cádiz",
-    "ccaa": "Andalucía"
-  },
-  "Puerto Real": {
-    "pricePerSqm": 1996,
+    "pricePerSqm": 2257,
     "provincia": "Cádiz",
     "ccaa": "Andalucía"
   },
   "San Fernando": {
-    "pricePerSqm": 1954,
+    "pricePerSqm": 1996,
     "provincia": "Cádiz",
     "ccaa": "Andalucía"
   },
   "Sanlúcar de Barrameda": {
-    "pricePerSqm": 2108,
+    "pricePerSqm": 2418,
     "provincia": "Cádiz",
     "ccaa": "Andalucía"
   },
   "Córdoba": {
-    "pricePerSqm": 2181,
-    "provincia": "Córdoba",
-    "ccaa": "Andalucía"
-  },
-  "Almuñecar": {
-    "pricePerSqm": 2345,
+    "pricePerSqm": 2165,
     "provincia": "Córdoba",
     "ccaa": "Andalucía"
   },
   "Granada": {
-    "pricePerSqm": 2670,
+    "pricePerSqm": 2841,
+    "provincia": "Granada",
+    "ccaa": "Andalucía"
+  },
+  "Motril": {
+    "pricePerSqm": 1681,
     "provincia": "Granada",
     "ccaa": "Andalucía"
   },
   "Huelva": {
-    "pricePerSqm": 1694,
+    "pricePerSqm": 1737,
     "provincia": "Huelva",
     "ccaa": "Andalucía"
   },
   "Jaén": {
-    "pricePerSqm": 1559,
+    "pricePerSqm": 1629,
     "provincia": "Jaén",
     "ccaa": "Andalucía"
   },
   "Alhaurín de la Torre": {
-    "pricePerSqm": 2759,
+    "pricePerSqm": 2920,
     "provincia": "Málaga",
     "ccaa": "Andalucía"
   },
   "Benalmádena": {
-    "pricePerSqm": 3548,
+    "pricePerSqm": 3860,
     "provincia": "Málaga",
     "ccaa": "Andalucía"
   },
   "Estepona": {
-    "pricePerSqm": 3754,
+    "pricePerSqm": 3856,
     "provincia": "Málaga",
     "ccaa": "Andalucía"
   },
   "Fuengirola": {
-    "pricePerSqm": 4346,
+    "pricePerSqm": 4596,
     "provincia": "Málaga",
     "ccaa": "Andalucía"
   },
   "Málaga": {
-    "pricePerSqm": 3967,
+    "pricePerSqm": 3993,
     "provincia": "Málaga",
     "ccaa": "Andalucía"
   },
   "Marbella": {
-    "pricePerSqm": 5597,
+    "pricePerSqm": 5469,
     "provincia": "Málaga",
     "ccaa": "Andalucía"
   },
   "Mijas": {
-    "pricePerSqm": 3266,
+    "pricePerSqm": 3302,
+    "provincia": "Málaga",
+    "ccaa": "Andalucía"
+  },
+  "Rincón de la Victoria": {
+    "pricePerSqm": 3602,
     "provincia": "Málaga",
     "ccaa": "Andalucía"
   },
   "Vélez Málaga": {
-    "pricePerSqm": 3176,
-    "provincia": "Málaga",
-    "ccaa": "Andalucía"
-  },
-  "Torremolinos": {
-    "pricePerSqm": 4004,
+    "pricePerSqm": 3123,
     "provincia": "Málaga",
     "ccaa": "Andalucía"
   },
   "Alcalá de Guadaíra": {
-    "pricePerSqm": 1844,
+    "pricePerSqm": 1820,
+    "provincia": "Sevilla",
+    "ccaa": "Andalucía"
+  },
+  "Camas": {
+    "pricePerSqm": 2352,
     "provincia": "Sevilla",
     "ccaa": "Andalucía"
   },
   "Dos Hermanas": {
-    "pricePerSqm": 2348,
-    "provincia": "Sevilla",
-    "ccaa": "Andalucía"
-  },
-  "Mairena del Aljarafe": {
-    "pricePerSqm": 2108,
-    "provincia": "Sevilla",
-    "ccaa": "Andalucía"
-  },
-  "Rinconada (La)": {
-    "pricePerSqm": 2045,
+    "pricePerSqm": 2356,
     "provincia": "Sevilla",
     "ccaa": "Andalucía"
   },
   "Sevilla": {
-    "pricePerSqm": 2805,
+    "pricePerSqm": 2846,
     "provincia": "Sevilla",
     "ccaa": "Andalucía"
   },
-  "Teruel": {
-    "pricePerSqm": 1842,
-    "provincia": "Teruel",
-    "ccaa": "Aragón"
-  },
   "Zaragoza": {
-    "pricePerSqm": 2666,
+    "pricePerSqm": 2514,
     "provincia": "Zaragoza",
     "ccaa": "Aragón"
   },
   "Burgos": {
-    "pricePerSqm": 2088,
+    "pricePerSqm": 2234,
     "provincia": "Burgos",
     "ccaa": "Castilla y León"
   },
   "León": {
-    "pricePerSqm": 1874,
+    "pricePerSqm": 1963,
     "provincia": "León",
     "ccaa": "Castilla y León"
   },
   "Salamanca": {
-    "pricePerSqm": 2106,
+    "pricePerSqm": 2093,
     "provincia": "Salamanca",
     "ccaa": "Castilla y León"
   },
   "Segovia": {
-    "pricePerSqm": 1920,
+    "pricePerSqm": 2149,
     "provincia": "Segovia",
     "ccaa": "Castilla y León"
   },
   "Albacete": {
-    "pricePerSqm": 1885,
+    "pricePerSqm": 2199,
     "provincia": "Albacete",
     "ccaa": "Castilla-La Mancha"
   },
-  "Cuenca": {
-    "pricePerSqm": 1574,
-    "provincia": "Cuenca",
-    "ccaa": "Castilla-La Mancha"
-  },
-  "Azuqueca de Henares": {
-    "pricePerSqm": 2053,
-    "provincia": "Guadalajara",
+  "Ciudad Real": {
+    "pricePerSqm": 1700,
+    "provincia": "Ciudad Real",
     "ccaa": "Castilla-La Mancha"
   },
   "Guadalajara": {
-    "pricePerSqm": 2047,
+    "pricePerSqm": 2054,
     "provincia": "Guadalajara",
     "ccaa": "Castilla-La Mancha"
   },
   "Illescas": {
-    "pricePerSqm": 1697,
-    "provincia": "Toledo",
-    "ccaa": "Castilla-La Mancha"
-  },
-  "Talavera de la Reina": {
-    "pricePerSqm": 1265,
+    "pricePerSqm": 1659,
     "provincia": "Toledo",
     "ccaa": "Castilla-La Mancha"
   },
   "Toledo": {
-    "pricePerSqm": 2101,
+    "pricePerSqm": 2242,
     "provincia": "Toledo",
     "ccaa": "Castilla-La Mancha"
   },
   "Badalona": {
-    "pricePerSqm": 3336,
+    "pricePerSqm": 3577,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Barcelona": {
-    "pricePerSqm": 5005,
-    "provincia": "Barcelona",
-    "ccaa": "Cataluña"
-  },
-  "Castelldefels": {
-    "pricePerSqm": 3985,
-    "provincia": "Barcelona",
-    "ccaa": "Cataluña"
-  },
-  "Cornellà de Llobregat": {
-    "pricePerSqm": 3410,
+    "pricePerSqm": 5150,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Esplugues de Llobregat": {
-    "pricePerSqm": 4331,
+    "pricePerSqm": 4290,
+    "provincia": "Barcelona",
+    "ccaa": "Cataluña"
+  },
+  "Gavà": {
+    "pricePerSqm": 3564,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Granollers": {
-    "pricePerSqm": 2889,
+    "pricePerSqm": 2663,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Hospitalet de Llobregat (L')": {
-    "pricePerSqm": 3291,
-    "provincia": "Barcelona",
-    "ccaa": "Cataluña"
-  },
-  "Manresa": {
-    "pricePerSqm": 1636,
+    "pricePerSqm": 3272,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Mataró": {
-    "pricePerSqm": 3327,
-    "provincia": "Barcelona",
-    "ccaa": "Cataluña"
-  },
-  "Montcada i Reixac": {
-    "pricePerSqm": 2538,
-    "provincia": "Barcelona",
-    "ccaa": "Cataluña"
-  },
-  "Prat de Llobregat (El)": {
-    "pricePerSqm": 3459,
+    "pricePerSqm": 3637,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Rubí": {
-    "pricePerSqm": 2383,
+    "pricePerSqm": 2750,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Sabadell": {
-    "pricePerSqm": 2890,
+    "pricePerSqm": 3021,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Sant Adrià de Besòs": {
-    "pricePerSqm": 3451,
+    "pricePerSqm": 3436,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Sant Boi de Llobregat": {
-    "pricePerSqm": 3110,
+    "pricePerSqm": 3072,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Sant Cugat del Vallès": {
-    "pricePerSqm": 5377,
-    "provincia": "Barcelona",
-    "ccaa": "Cataluña"
-  },
-  "Sant Feliu de Llobregat": {
-    "pricePerSqm": 3775,
+    "pricePerSqm": 5690,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Sant Pere de Ribes": {
-    "pricePerSqm": 2879,
+    "pricePerSqm": 3365,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Santa Coloma Gramanet": {
-    "pricePerSqm": 2762,
-    "provincia": "Barcelona",
-    "ccaa": "Cataluña"
-  },
-  "Cerdanyola del Vallès": {
-    "pricePerSqm": 3316,
-    "provincia": "Barcelona",
-    "ccaa": "Cataluña"
-  },
-  "Sitges": {
-    "pricePerSqm": 4710,
+    "pricePerSqm": 2929,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Terrassa": {
-    "pricePerSqm": 2622,
-    "provincia": "Barcelona",
-    "ccaa": "Cataluña"
-  },
-  "Vic": {
-    "pricePerSqm": 2493,
+    "pricePerSqm": 2578,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Viladecans": {
-    "pricePerSqm": 3536,
+    "pricePerSqm": 3931,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Vilanova i la Geltrú": {
-    "pricePerSqm": 3117,
+    "pricePerSqm": 3400,
     "provincia": "Barcelona",
     "ccaa": "Cataluña"
   },
   "Girona": {
-    "pricePerSqm": 2592,
+    "pricePerSqm": 2734,
     "provincia": "Girona",
     "ccaa": "Cataluña"
   },
   "Lleida": {
-    "pricePerSqm": 1715,
+    "pricePerSqm": 1990,
     "provincia": "Lleida",
     "ccaa": "Cataluña"
   },
-  "Cambrils": {
-    "pricePerSqm": 2815,
-    "provincia": "Tarragona",
-    "ccaa": "Cataluña"
-  },
   "Reus": {
-    "pricePerSqm": 1866,
+    "pricePerSqm": 1927,
     "provincia": "Tarragona",
     "ccaa": "Cataluña"
   },
   "Tarragona": {
-    "pricePerSqm": 2143,
+    "pricePerSqm": 2158,
     "provincia": "Tarragona",
     "ccaa": "Cataluña"
   },
-  "Salou": {
-    "pricePerSqm": 2936,
+  "Vendrell (El)": {
+    "pricePerSqm": 2054,
     "provincia": "Tarragona",
     "ccaa": "Cataluña"
   },
   "Castellón de la Plana": {
-    "pricePerSqm": 1730,
+    "pricePerSqm": 1684,
     "provincia": "Castellón/Castelló",
     "ccaa": "C. Valenciana"
   },
   "Badajoz": {
-    "pricePerSqm": 1880,
+    "pricePerSqm": 1969,
     "provincia": "Badajoz",
     "ccaa": "Extremadura"
   },
   "Cáceres": {
-    "pricePerSqm": 1656,
+    "pricePerSqm": 1902,
     "provincia": "Cáceres",
     "ccaa": "Extremadura"
   },
-  "Lugo": {
-    "pricePerSqm": 1746,
-    "provincia": "Lugo",
-    "ccaa": "Galicia"
-  },
   "Ourense": {
-    "pricePerSqm": 1655,
+    "pricePerSqm": 1640,
     "provincia": "Ourense",
     "ccaa": "Galicia"
   },
   "Pontevedra": {
-    "pricePerSqm": 2332,
-    "provincia": "Pontevedra",
-    "ccaa": "Galicia"
-  },
-  "Redondela": {
-    "pricePerSqm": 1353,
+    "pricePerSqm": 2635,
     "provincia": "Pontevedra",
     "ccaa": "Galicia"
   },
   "Vigo": {
-    "pricePerSqm": 2510,
+    "pricePerSqm": 2626,
     "provincia": "Pontevedra",
     "ccaa": "Galicia"
   },
   "Alcalá de Henares": {
-    "pricePerSqm": 2891,
+    "pricePerSqm": 3083,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Alcobendas": {
-    "pricePerSqm": 5201,
-    "provincia": "Madrid",
-    "ccaa": "Madrid"
-  },
-  "Alcorcón": {
-    "pricePerSqm": 3214,
+    "pricePerSqm": 5197,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Aranjuez": {
-    "pricePerSqm": 2044,
+    "pricePerSqm": 2296,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Arganda del Rey": {
-    "pricePerSqm": 2541,
+    "pricePerSqm": 2841,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Boadilla del Monte": {
-    "pricePerSqm": 3823,
+    "pricePerSqm": 4147,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Colmenar Viejo": {
-    "pricePerSqm": 3077,
+    "pricePerSqm": 3093,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
-  "Collado Villalba": {
-    "pricePerSqm": 2970,
+  "Coslada": {
+    "pricePerSqm": 3731,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Fuenlabrada": {
-    "pricePerSqm": 2832,
-    "provincia": "Madrid",
-    "ccaa": "Madrid"
-  },
-  "Galapagar": {
-    "pricePerSqm": 2855,
+    "pricePerSqm": 3034,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Getafe": {
-    "pricePerSqm": 3040,
+    "pricePerSqm": 3312,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Leganés": {
-    "pricePerSqm": 3184,
+    "pricePerSqm": 3586,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Madrid": {
-    "pricePerSqm": 5921,
-    "provincia": "Madrid",
-    "ccaa": "Madrid"
-  },
-  "Majadahonda": {
-    "pricePerSqm": 4655,
+    "pricePerSqm": 6142,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Móstoles": {
-    "pricePerSqm": 2973,
-    "provincia": "Madrid",
-    "ccaa": "Madrid"
-  },
-  "Navalcarnero": {
-    "pricePerSqm": 2289,
+    "pricePerSqm": 3142,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Pozuelo de Alarcón": {
-    "pricePerSqm": 5726,
-    "provincia": "Madrid",
-    "ccaa": "Madrid"
-  },
-  "Rivas-Vaciamadrid": {
-    "pricePerSqm": 3363,
+    "pricePerSqm": 5385,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Rozas de Madrid (Las)": {
-    "pricePerSqm": 4750,
-    "provincia": "Madrid",
-    "ccaa": "Madrid"
-  },
-  "San Sebastián de los Reyes": {
-    "pricePerSqm": 4052,
+    "pricePerSqm": 4715,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Torrejón de Ardoz": {
-    "pricePerSqm": 3015,
+    "pricePerSqm": 3248,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Valdemoro": {
-    "pricePerSqm": 2588,
+    "pricePerSqm": 2761,
+    "provincia": "Madrid",
+    "ccaa": "Madrid"
+  },
+  "Villaviciosa de Odón": {
+    "pricePerSqm": 3954,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Tres Cantos": {
-    "pricePerSqm": 4487,
+    "pricePerSqm": 4493,
     "provincia": "Madrid",
     "ccaa": "Madrid"
   },
   "Águilas": {
-    "pricePerSqm": 1541,
-    "provincia": "Murcia",
-    "ccaa": "Murcia"
-  },
-  "Alcantarilla": {
-    "pricePerSqm": 1048,
+    "pricePerSqm": 1751,
     "provincia": "Murcia",
     "ccaa": "Murcia"
   },
   "Cartagena": {
-    "pricePerSqm": 1623,
+    "pricePerSqm": 1609,
     "provincia": "Murcia",
     "ccaa": "Murcia"
   },
   "Molina de Segura": {
-    "pricePerSqm": 1462,
+    "pricePerSqm": 1495,
     "provincia": "Murcia",
     "ccaa": "Murcia"
   },
   "Murcia": {
-    "pricePerSqm": 1912,
-    "provincia": "Murcia",
-    "ccaa": "Murcia"
-  },
-  "San Javier": {
-    "pricePerSqm": 1942,
-    "provincia": "Murcia",
-    "ccaa": "Murcia"
-  },
-  "Torre-Pacheco": {
-    "pricePerSqm": 1614,
+    "pricePerSqm": 2005,
     "provincia": "Murcia",
     "ccaa": "Murcia"
   },
   "Pamplona/Iruña": {
-    "pricePerSqm": 2971,
+    "pricePerSqm": 3277,
     "provincia": "Navarra",
     "ccaa": "Navarra"
   },
   "Vitoria": {
-    "pricePerSqm": 2797,
+    "pricePerSqm": 3037,
     "provincia": "Araba/Alava",
     "ccaa": "País Vasco"
   },
-  "San Sebastián/Donostia": {
-    "pricePerSqm": 6117,
+  "Errenteria": {
+    "pricePerSqm": 3507,
     "provincia": "Gipuzkoa",
     "ccaa": "País Vasco"
   },
-  "Barakaldo": {
-    "pricePerSqm": 2830,
-    "provincia": "Bizkaia",
+  "San Sebastián/Donostia": {
+    "pricePerSqm": 5659,
+    "provincia": "Gipuzkoa",
     "ccaa": "País Vasco"
   },
   "Bilbao": {
-    "pricePerSqm": 3601,
+    "pricePerSqm": 3533,
     "provincia": "Bizkaia",
     "ccaa": "País Vasco"
   },
-  "Getxo": {
-    "pricePerSqm": 4241,
+  "Leioa": {
+    "pricePerSqm": 4021,
     "provincia": "Bizkaia",
     "ccaa": "País Vasco"
   },
-  "Ceuta": {
-    "pricePerSqm": 2222,
-    "provincia": "Ceuta",
-    "ccaa": "Ceuta"
+  "Logroño": {
+    "pricePerSqm": 2258,
+    "provincia": "La Rioja",
+    "ccaa": "La Rioja"
   },
   "Melilla": {
-    "pricePerSqm": 2495,
+    "pricePerSqm": 2551,
     "provincia": "Melilla",
     "ccaa": "Melilla"
   }
